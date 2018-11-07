@@ -1,5 +1,5 @@
 #!/bin/bash
-# Script for the Othello example program that you should beat. Don't forget to make it executable (chmod +x othello)
+# Script for the Othello example program that you should beat. Don't forget to make it executable (chmod +x othello_navive)
 # Note that this program does not use the time parameter, but always use depth 7 (to be easier to beat)
 
 # usage: othello position 
