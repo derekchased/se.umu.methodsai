@@ -6,7 +6,7 @@
 # Edited by Ola Ringdahl
 
 if [ $# -lt 3 ]; then
-  echo "Too few arguments."
+	echo "Too few arguments."
 	echo "Usage: othellostart white_player black_player time_limit"
 	exit 1
 fi
@@ -14,9 +14,9 @@ fi
 pos="WEEEEEEEEEEEEEEEEEEEEEEEEEEEOXEEEEEEXOEEEEEEEEEEEEEEEEEEEEEEEEEEE"
 java Printer $pos
 
-white="$1"
-black="$2"
-time="$3"
+white="$1" # the program playing white
+black="$2" # the program playing black
+time="$3"  # timelimit
 endgame="no"
 whitepass="no"
 blackpass="no"
@@ -26,6 +26,12 @@ whiteTmax=0
 blackTmax=0
 whiteTtot=0
 blackTtot=0
+
+# compile the code first:
+move=`$white $pos $time 1`
+move=`$black $pos $time 1`
+
+# Play a full game
 while [ "$endgame" != "yes" ]
 do
     echo ""
@@ -33,7 +39,7 @@ do
     echo "White to move"
     echo $pos
     STARTTIME=$(date +%s)
-    move=`$white $pos $time`
+    move=`$white $pos $time 0`
     ENDTIME=$(date +%s)
     echo $move    
     pos=`java Mover "$pos" "$move"`
@@ -63,7 +69,7 @@ do
         echo "Black to move"
         echo $pos
 		STARTTIME=$(date +%s)
-        move=`$black $pos $time`
+        move=`$black $pos $time 0`
         ENDTIME=$(date +%s)
         echo $move
         pos=`java Mover "$pos" "$move"`
