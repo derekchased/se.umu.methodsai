@@ -17,6 +17,7 @@ url = 'http://localhost:50000'
 # HTTPConnection does not want to have http:// in the address apparently, so lest's remove it:
 MRDS_URL = url[len("http://"):]
 
+import sys
 import http.client, json, time
 import numpy as np
 from math import sin, cos, pi, atan2
@@ -33,7 +34,11 @@ def postSpeed(angularSpeed, linearSpeed):
     """Sends a speed command to the MRDS server"""
     mrds = http.client.HTTPConnection(MRDS_URL)
     params = json.dumps({'TargetAngularSpeed': angularSpeed, 'TargetLinearSpeed': linearSpeed})
-    mrds.request('POST', '/lokarria/differentialdrive', params, HEADERS)
+    try:
+        mrds.request('POST', '/lokarria/differentialdrive', params, HEADERS)
+    except:
+        print("Connection refused")
+        sys.exit(-1)     
     response = mrds.getresponse()
     status = response.status
     # response.close()
