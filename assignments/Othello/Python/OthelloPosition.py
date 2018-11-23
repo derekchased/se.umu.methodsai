@@ -18,13 +18,13 @@ class OthelloPosition(object):
         markers).
         """
         self.BOARD_SIZE = 8
-        self.playerToMove = True
+        self.maxPlayer = True
         self.board = np.array([['E' for col in range(self.BOARD_SIZE + 2)] for row in range(self.BOARD_SIZE + 2)])
         if len(list(board_str)) >= 65:
             if board_str[0] == 'W':
-                self.playerToMove = True
+                self.maxPlayer = True
             else:
-                self.playerToMove = False
+                self.maxPlayer = False
             for i in range(1, len(list(board_str))):
                 col = ((i - 1) % 8) + 1
                 row = (i - 1) // 8 + 1
@@ -43,7 +43,7 @@ class OthelloPosition(object):
         self.board[self.BOARD_SIZE / 2 + 1][self.BOARD_SIZE / 2 + 1] = 'W'
         self.board[self.BOARD_SIZE / 2][self.BOARD_SIZE / 2 + 1] = 'B'
         self.board[self.BOARD_SIZE / 2 + 1][self.BOARD_SIZE / 2] = 'B'
-        self.playerToMove = True
+        self.maxPlayer = True
 
     def make_move(self, action):
         """
@@ -258,9 +258,9 @@ class OthelloPosition(object):
         :param col: The column of the board position
         :return: True if opponent square
         """
-        if self.playerToMove and self.board[row][col] == 'B':
+        if self.maxPlayer and self.board[row][col] == 'B':
             return True
-        if not self.playerToMove and self.board[row][col] == 'W':
+        if not self.maxPlayer and self.board[row][col] == 'W':
             return True
         return False
 
@@ -271,9 +271,9 @@ class OthelloPosition(object):
         :param col: The column of the board position
         :return: True if it's your own square
         """
-        if not self.playerToMove and self.board[row][col] == 'B':
+        if not self.maxPlayer and self.board[row][col] == 'B':
             return True
-        if self.playerToMove and self.board[row][col] == 'W':
+        if self.maxPlayer and self.board[row][col] == 'W':
             return True
         return False
 
@@ -307,7 +307,7 @@ class OthelloPosition(object):
         Check which player's turn it is
         :return: True if the first player (white) has the move, otherwise False
         """
-        return self.playerToMove
+        return self.maxPlayer
 
     def clone(self):
         """
@@ -316,7 +316,7 @@ class OthelloPosition(object):
         """
         ot = OthelloPosition("")
         ot.board = np.copy(self.board)
-        ot.playerToMove = self.playerToMove
+        ot.maxPlayer = self.maxPlayer
         print("OT Size: ", self.board.shape)
         return ot
 
@@ -326,4 +326,4 @@ class OthelloPosition(object):
         :return: Nothing
         """
         print(self.board)
-        # print("ToMove: ", self.playerToMove)
+        # print("ToMove: ", self.maxPlayer)

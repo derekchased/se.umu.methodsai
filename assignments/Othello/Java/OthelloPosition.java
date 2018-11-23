@@ -14,7 +14,7 @@ public class OthelloPosition {
     protected static final int BOARD_SIZE = 8;
 
     /** True if the first player (white) has the move. */
-    protected boolean playerToMove;
+    protected boolean maxPlayer;
 
     /**
      * The representation of the board. For convenience, the array actually has two
@@ -46,9 +46,9 @@ public class OthelloPosition {
         } else {
             board = new char[BOARD_SIZE + 2][BOARD_SIZE + 2];
             if (s.charAt(0) == 'W') {
-                playerToMove = true;
+                maxPlayer = true;
             } else {
-                playerToMove = false;
+                maxPlayer = false;
             }
             for (int i = 1; i <= 64; i++) {
                 char c;
@@ -73,7 +73,7 @@ public class OthelloPosition {
     public void initialize() {
         board[BOARD_SIZE / 2][BOARD_SIZE / 2] = board[BOARD_SIZE / 2 + 1][BOARD_SIZE / 2 + 1] = 'W';
         board[BOARD_SIZE / 2][BOARD_SIZE / 2 + 1] = board[BOARD_SIZE / 2 + 1][BOARD_SIZE / 2] = 'B';
-        playerToMove = true;
+        maxPlayer = true;
     }
 
     /* getMoves and helper functions */
@@ -245,9 +245,9 @@ public class OthelloPosition {
      * Check if the position is occupied by the opponent
      */
     private boolean isOpponentSquare(int row, int column) {
-        if (playerToMove && (board[row][column] == 'B'))
+        if (maxPlayer && (board[row][column] == 'B'))
             return true;
-        if (!playerToMove && (board[row][column] == 'W'))
+        if (!maxPlayer && (board[row][column] == 'W'))
             return true;
         return false;
     }
@@ -256,9 +256,9 @@ public class OthelloPosition {
      * Check if the position is occupied by the player
      */
     private boolean isOwnSquare(int row, int column) {
-        if (!playerToMove && (board[row][column] == 'B'))
+        if (!maxPlayer && (board[row][column] == 'B'))
             return true;
-        if (playerToMove && (board[row][column] == 'W'))
+        if (maxPlayer && (board[row][column] == 'W'))
             return true;
         return false;
     }
@@ -315,7 +315,7 @@ public class OthelloPosition {
 
     /** Returns true if the first player (white) has the move, otherwise false. */
     public boolean toMove() {
-        return playerToMove;
+        return maxPlayer;
     }
 
     /* makeMove and helper functions */
@@ -336,7 +336,7 @@ public class OthelloPosition {
      */
     protected OthelloPosition clone() {
         OthelloPosition newPosition = new OthelloPosition();
-        newPosition.playerToMove = playerToMove;
+        newPosition.maxPlayer = maxPlayer;
         for (int i = 0; i < BOARD_SIZE + 2; i++)
             for (int j = 0; j < BOARD_SIZE + 2; j++)
                 newPosition.board[i][j] = board[i][j];
@@ -386,7 +386,7 @@ public class OthelloPosition {
     public String toString() {
         String s = "";
         char c, d;
-        if (playerToMove) {
+        if (maxPlayer) {
             s += "W";
         } else {
             s += "B";
