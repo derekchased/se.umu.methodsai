@@ -55,9 +55,6 @@ class ShowMap(object):
         saveMap(self.__fig, self.mapName)
         self.start_time = time.time()
 
-        # wait a bit while the figure is updated (avoids freeze in windows)
-        plt.pause(0.01)
-
     def updateMap(self, grid, maxValue, robot_row, robot_col):
         """
         Creates a new BufferedImage from a grid with integer values between 0 - maxVal,
@@ -105,6 +102,9 @@ class ShowMap(object):
             self.t = threading.Thread(target=saveMap, args=(self.__fig, self.mapName,))
             self.t.start()
             self.start_time = time.time()
+        
+        # wait a bit while the figure is updated (avoids a freeze in Windows)
+        plt.pause(0.01)
 
     def close(self):
         """ Saves the last image before closing the application """
