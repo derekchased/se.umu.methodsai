@@ -2,7 +2,6 @@ from  PIL import Image
 import numpy as np
 import time
 import threading
-import matplotlib.pyplot as plt
 
 """
 ShowMap creates a Gui for showing the progress of the created map and saves it to file every 5 second
@@ -24,7 +23,7 @@ class ShowMap(object):
         import matplotlib
         if not showGUI:
             matplotlib.use('Agg')
-
+        import matplotlib.pyplot as plt
         self.saveMapTime = 5.0
         self.mapName = 'map.png'
         self.first = True
@@ -104,11 +103,13 @@ class ShowMap(object):
             self.start_time = time.time()
         
         # wait a bit while the figure is updated (avoids a freeze in Windows)
+        import matplotlib.pyplot as plt
         plt.pause(0.01)
 
     def close(self):
         """ Saves the last image before closing the application """
         saveMap(self.__fig, self.mapName)
+        import matplotlib.pyplot as plt
         plt.close()
 
 def saveMap(fig, mapName):
@@ -117,4 +118,3 @@ def saveMap(fig, mapName):
     data = data.reshape(fig.canvas.get_width_height()[::-1] + (3,))
     img = Image.fromarray(data)
     img.convert('RGB').save(mapName, 'PNG')
-
