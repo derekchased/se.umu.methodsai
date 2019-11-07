@@ -39,10 +39,10 @@ class OthelloPosition(object):
         Initializes the position by placing four markers in the middle of the board.
         :return: Nothing
         """
-        self.board[self.BOARD_SIZE / 2][self.BOARD_SIZE / 2] = 'W'
-        self.board[self.BOARD_SIZE / 2 + 1][self.BOARD_SIZE / 2 + 1] = 'W'
-        self.board[self.BOARD_SIZE / 2][self.BOARD_SIZE / 2 + 1] = 'B'
-        self.board[self.BOARD_SIZE / 2 + 1][self.BOARD_SIZE / 2] = 'B'
+        self.board[self.BOARD_SIZE // 2][self.BOARD_SIZE // 2] = 'W'
+        self.board[self.BOARD_SIZE // 2 + 1][self.BOARD_SIZE // 2 + 1] = 'W'
+        self.board[self.BOARD_SIZE // 2][self.BOARD_SIZE // 2 + 1] = 'B'
+        self.board[self.BOARD_SIZE // 2 + 1][self.BOARD_SIZE // 2] = 'B'
         self.maxPlayer = True
 
     def make_move(self, action):
