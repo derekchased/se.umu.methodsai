@@ -17,6 +17,7 @@ Updated by Ola Ringdahl 2019-11-21 Fixed some stuff for AI2
 import http.client, json, time
 from math import sin, cos, pi, atan2
 import quaternion
+import sys
 
 HEADERS = {"Content-type": "application/json", "Accept": "text/json"}
 
@@ -49,10 +50,12 @@ class Robot:
         command to the MRDS server
         speed is given in m/s, turn rate in radians/s
         """
-        mrds = http.client.HTTPConnection(self.url)
+        mrds = http.client.HTTPConnection(self.url, timeout=1)
         params = json.dumps({'TargetLinearSpeed': linearSpeed, 'TargetAngularSpeed': turnrate})
         try:
+            print("hej")
             mrds.request('POST', '/lokarria/differentialdrive', params, HEADERS)
+            print("da")      
         except:
             print("Connection refused")
             sys.exit(-1)
