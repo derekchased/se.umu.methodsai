@@ -53,9 +53,7 @@ class Robot:
         mrds = http.client.HTTPConnection(self.url, timeout=1)
         params = json.dumps({'TargetLinearSpeed': linearSpeed, 'TargetAngularSpeed': turnrate})
         try:
-            print("hej")
-            mrds.request('POST', '/lokarria/differentialdrive', params, HEADERS)
-            print("da")      
+            mrds.request('POST', '/lokarria/differentialdrive', params, HEADERS)            
         except:
             print("Connection refused")
             sys.exit(-1)
@@ -70,8 +68,12 @@ class Robot:
 
     def getLaser(self):
         """Requests the current laser scan from the MRDS server and parses it into a dict"""
-        mrds = http.client.HTTPConnection(self.url)
-        mrds.request('GET', '/lokarria/laser/echoes')
+        mrds = http.client.HTTPConnection(self.url, timeout=1)
+        try:
+            mrds.request('GET', '/lokarria/laser/echoes')
+        except:
+            print("Connection refused")
+            sys.exit(-1)        
         response = mrds.getresponse()
         if (response.status == 200):
             laserData = response.read()
@@ -83,7 +85,7 @@ class Robot:
 
     def getLaserAngles(self):
         """Requests the current laser properties from the MRDS server and parses it into a dict"""
-        mrds = http.client.HTTPConnection(self.url)
+        mrds = http.client.HTTPConnection(self.url, timeout=1)
         mrds.request('GET', '/lokarria/laser/properties')
         response = mrds.getresponse()
         if (response.status == 200):
@@ -104,7 +106,7 @@ class Robot:
     # Local methods, not usually used outside of this class    
     def _getPose(self):
         """Reads the current position and orientation from the MRDS"""
-        mrds = http.client.HTTPConnection(self.url)
+        mrds = http.client.HTTPConnection(self.url, timeout=1)
         mrds.request('GET', '/lokarria/localization')
         response = mrds.getresponse()
         if (response.status == 200):

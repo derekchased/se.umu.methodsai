@@ -64,6 +64,8 @@ public class RobotCommunication {
 	URL url = new URL(host + ":" + port + r.getPath());
 
 	HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+    
+    connection.setConnectTimeout(1000); //set timeout to 1 second
 
 	connection.setDoOutput(true);
 
