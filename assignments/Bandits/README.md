@@ -22,7 +22,8 @@ You need to have the following software installed and accounts set up to absolve
 * A text editor or development environment like [Visual Studio Code](https://code.visualstudio.com/) or [PyCharm](https://www.jetbrains.com/pycharm/).
 
 We recommend using a Unix-based operating system (Mac OS, Linux) or Windows with a bash emulator for this exercise.
-If you don't know either ``git`` or ``Python``, search online for some tutorials and absolve them.
+If you don't know ``Python``, search online for some tutorials and absolve them.
+If you don't know ``git``, consider learning it, but you'll be able to absolve the assignment without git knowledge.
 
 ## Getting Started
 
@@ -44,11 +45,10 @@ pip install -r requirements.txt
 
 Open the ``MyBandit.py`` file in the ``src`` directory. You will see an implementation of a simple epsilon-greedy bandit.
 Your task is to improve the bandit and so that you can beat the initial bandit's performance reliably.
-Out of 20 simulation runs with 1.000 "pulled arms" each, your new bandit should outperform the reference bandit by at least 5% (5% more reward gained) in at least 15 runs.
+Out of 20 simulation runs with 1.000 +/-500 "pulled arms" each, your new bandit should outperform the reference bandit by at least 30% (30% more reward gained) in at least 15 runs.
+**Note that the rewards per arm will be adjusted after each of the 20 simulation runs; i.e., your bandit must be capable of adjusting to these changes.**
 
-To test your implementation, open the ``test_runner.py`` file.
-Delete the line ``assert True`` (line 21) and remove the comment in front of the next line.
-Then, run ``pytest`` in the repository's root directory.
+To test your implementation, run ``pytest`` in the repository's root directory.
 
 ## Report
 Once you have achieved satisfactory performance, don't hesitate to improve further ;-), but more importantly, write a short report that describes:
@@ -62,17 +62,8 @@ Once you have achieved satisfactory performance, don't hesitate to improve furth
 The report should be approximately one page long; not much shorter, not much longer.
 
 ## Hand-in
-To hand in the exercise, first add, commit and push your changes (**don't forget to adjust the branch name in the example below**):
 
-```
-git add --all
-git commit -m 'add custom multi-armed bandit implementation'
-git push --set-upstream origin <your-branch-name>
-git push
-```
-**Important: NEVER USE THE ``--force`` OPTION WHEN PUSHING A BRANCH!**
-
-Then, go to ``https://github.com/TimKam/multi-armed-bandit-lab/pulls`` and create a pull request for your branch.
-Make sure all tests pass for your pull requests.
-Then, add the link to your pull request to your report.
-Hand-in the report and a copy of your code in [Labres](https://webapps.cs.umu.se/labresults/v2/handin.php?courseid=402).
+Hand-in the report and a copy of your code in [Labres](https://webapps.cs.umu.se/labresults/v2/courseadmin.php?courseid=458).
+The only program code you need to hand in is the ``MyBandit.py`` file.
+**Do not hand in a .zip file.**
+**Also, ensure your implementation only depends on changes made to ``MyBandit.py``.**
