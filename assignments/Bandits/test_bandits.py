@@ -33,7 +33,7 @@ def simulate():
         iterations = math.floor(1000 * (random.random()) + 0.5)
         bandit_reward = simulator.simulate(bandit, iterations)
         ref_bandit_reward = simulator.simulate(ref_bandit, iterations)
-        ref_plus_bonus = ref_bandit_reward * 1.30
+        ref_plus_bonus = ref_bandit_reward * 1.25
         result = 0
         if (bandit_reward > ref_plus_bonus):
             result = 1

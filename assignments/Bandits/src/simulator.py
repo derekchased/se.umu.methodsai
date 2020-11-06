@@ -31,7 +31,7 @@ def simulate(bandit, iterations):
         expected_rewards_approx.append(-5)
         expected_rewards_approx.append(-10)
         for (index, reward) in enumerate(expected_rewards_approx):
-            expected_rewards_approx[index] = reward + (random() - 0.5) * reward * 0.3
+            expected_rewards_approx[index] = reward + (random() - 0.5) * reward * 0.75
         for arm_index in range(6):
             acc_rewards[arm_index] = acc_rewards[arm_index] + generate_reward(arm_index, expected_rewards_approx)
 
