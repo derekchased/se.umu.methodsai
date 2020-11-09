@@ -11,6 +11,7 @@ To get an overview of multi-armed bandits in their implementation take a look at
 In the lab, you will implement a multi-armed bandit to solve an example problem.
 Your bandit will need to beat a “naïve” benchmark.
 Also, we will determine the best-performing bandit of all submissions.
+**You can (and are encouraged to) work in pairs**.
 
 ## Requirements
 You need to have the following software installed and accounts set up to absolve this exercise:
@@ -26,6 +27,9 @@ If you don't know ``Python``, search online for some tutorials and absolve them.
 If you don't know ``git``, consider learning it, but you'll be able to absolve the assignment without git knowledge.
 
 ## Getting Started
+
+**Note that we will have an online "lab session" to get you started with the assignment.**
+**Attending the session will help you absolve the assignment quickly and accurately.**
 
 Open the GitLab repository we use for this exercise: [https://git.cs.umu.se/courses/5dv181ht18](https://git.cs.umu.se/courses/5dv181ht18).
 
@@ -60,6 +64,7 @@ Once you have achieved satisfactory performance, don't hesitate to improve furth
 3. how you could improve further.
 
 The report should be approximately one page long; not much shorter, not much longer.
+The report must have a title page including your name, your username at computing science (of both students if you work in pair), the course name, course code, and the assignment name.
 
 ## Hand-in
 
@@ -67,3 +72,6 @@ Hand-in the report and a copy of your code in [Labres](https://webapps.cs.umu.se
 The only program code you need to hand in is the ``MyBandit.py`` file.
 **Do not hand in a .zip file.**
 **Also, ensure your implementation only depends on changes made to ``MyBandit.py``.**
+
+Upon hand-in, the test (``pytest``) will automatically run to check if your submissions fulfills the technical requirements.
+Please check to make sure the test passes. If not, you can re-submit.
