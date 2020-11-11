@@ -47,7 +47,7 @@ cd multi-armed-bandits
 pip install -r requirements.txt
 ```
 
-Open the ``MyBandit.py`` file in the ``src`` directory. You will see an implementation of a simple epsilon-greedy bandit.
+Open the ``MyBandit.py`` file in the project's root directory. You will see an implementation of a simple epsilon-greedy bandit.
 Your task is to improve the bandit and so that you can beat the initial bandit's performance reliably.
 Out of 20 simulation runs with 1.000 +/-500 "pulled arms" each, your new bandit should outperform the reference bandit by at least 25% (25% more reward gained) in at least 16 runs.
 **Note that the rewards per arm will be adjusted after each of the 20 simulation runs; i.e., your bandit must be capable of adjusting to these changes.**
