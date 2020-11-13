@@ -70,7 +70,7 @@ class OthelloPosition(object):
 
     def __is_candidate(self, row, col):
         """
-        Check if a position is a candidate for a move (not empty and has a neighbour)
+        Check if a position is a candidate for a move (empty and has a neighbour)
         :param row: The row of the board position
         :param col: The column of the board position
         :return: True if it is a candidate
