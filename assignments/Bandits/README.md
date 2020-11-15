@@ -39,7 +39,7 @@ Download (click the **Download** button) or ``clone`` the repository:
 git@git.cs.umu.se:courses/5dv181ht18.git
 ```
 
-If you have already clone the repository, you can run ``git pull --rebase`` to get the latest changes.
+If you have already cloned the repository, you can run ``git pull --rebase`` to get the latest changes.
 In case you have made changes to the repository, you need to stash them beforehand (``git stash``); you can apply them afterwards with ``git stash apply``.
 
 Navigate into the ``assignments/Bandits/`` folder in the project.
