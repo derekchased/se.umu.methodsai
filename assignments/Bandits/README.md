@@ -14,7 +14,7 @@ Also, we will determine the best-performing bandit of all submissions.
 **You can (and are encouraged to) work in pairs**.
 
 ## Requirements
-You need to have the following software installed and accounts set up to absolve this exercise:
+You need to have the following software installed and accounts set up to solve this exercise:
 
 * [Python 3.7.x or 3.8.x](https://www.python.org/);
 
@@ -23,13 +23,13 @@ You need to have the following software installed and accounts set up to absolve
 * A text editor or development environment like [Visual Studio Code](https://code.visualstudio.com/) or [PyCharm](https://www.jetbrains.com/pycharm/).
 
 We recommend using a Unix-based operating system (Mac OS, Linux) or Windows with a bash emulator for this exercise.
-If you don't know ``Python``, search online for some tutorials and absolve them.
-If you don't know ``git``, consider learning it, but you'll be able to absolve the assignment without git knowledge.
+If you don't know ``Python``, search online for some tutorials.
+If you don't know ``git``, consider learning it, but you'll be able to solve the assignment without git knowledge.
 
 ## Getting Started
 
 **Note that we will have an online "lab session" to get you started with the assignment.**
-**Attending the session will help you absolve the assignment quickly and accurately.**
+**Attending the session will help you solve the assignment quickly and accurately.**
 
 Open the GitLab repository we use for this exercise: [https://git.cs.umu.se/courses/5dv181ht18](https://git.cs.umu.se/courses/5dv181ht18).
 
@@ -38,6 +38,9 @@ Download (click the **Download** button) or ``clone`` the repository:
 ```
 git@git.cs.umu.se:courses/5dv181ht18.git
 ```
+
+If you have already clone the repository, you can run ``git pull --rebase`` to get the latest changes.
+In case you have made changes to the repository, you need to stash them beforehand (``git stash``); you can apply them afterwards with ``git stash apply``.
 
 Navigate into the ``assignments/Bandits/`` folder in the project.
 Install the dependencies for the assignment:
