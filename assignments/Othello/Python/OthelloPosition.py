@@ -7,6 +7,11 @@ class OthelloPosition(object):
     This class is used to represent game positions. It uses a 2-dimensional char array for the board
     and a Boolean to keep track of which player has the move.
 
+    For convenience, the array actually has two columns and two rows more that the actual game board.
+    The 'middle' is used for the board. The first index is for rows, and the second for columns.
+    This means that for a standard 8x8 game board, board[1][1] represents the upper left corner,
+    board[1][8] the upper right corner, board[8][1] the lower left corner, and board[8][8] the lower left corner.
+
     Author: Ola Ringdahl
     """
 
@@ -317,7 +322,6 @@ class OthelloPosition(object):
         ot = OthelloPosition("")
         ot.board = np.copy(self.board)
         ot.maxPlayer = self.maxPlayer
-        print("OT Size: ", self.board.shape)
         return ot
 
     def print_board(self):
