@@ -7,7 +7,7 @@ import numpy as np
 
 
 def main():
-    host = "http://bratwurst.cs.umu.se:50000"
+    host = "http://127.0.0.1:50000"
 
     # make a robot to move around
     robot = Robot(host)
