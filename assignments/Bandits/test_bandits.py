@@ -30,7 +30,7 @@ def simulate():
     results = []
     for index in range(0, 20):
         random.seed(index)
-        iterations = math.floor(1000 * (random.random()) + 0.5)
+        iterations = int(math.floor(1000 * (random.random()) + 0.5))
         bandit_reward = simulator.simulate(bandit, iterations)
         ref_bandit_reward = simulator.simulate(ref_bandit, iterations)
         ref_plus_bonus = ref_bandit_reward * 1.35
