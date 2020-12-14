@@ -36,4 +36,4 @@ class OthelloMove(object):
       if self.is_pass_move:
         return "pass"
       else:
-        return "[ " + self.name+": "+ str(self.value) + " (" + str(self.row) + "," + str(self.col) + ") ]"
+        return "[ " + self.name+", "+ str(self.value) + " (" + str(self.row) + "," + str(self.col) + ") ]"

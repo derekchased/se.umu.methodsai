@@ -10,14 +10,15 @@ class Othello:
 	def __init__(self, position_str, time_limit):
 		
 		# Start the move timer
-		#self._timer = threading.Timer(time_limit, self._times_up) 
-		#self._timer.start() 
+		self._timer = threading.Timer(time_limit, self._times_up) 
+		self._timer.start() 
 
 		self._othello_ab_search = OthelloABSearch(position_str)
 		self._othello_ab_search.absearch( self._othello_ab_search.othello_state)
 
 	# Game Timer
-	def _times_up(self): 
+	def _times_up(self):
+		exit() 
 		pass
 
 	# HEURISTICS
