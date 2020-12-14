@@ -47,7 +47,7 @@ Install the dependencies for the assignment:
 
 ```
 cd multi-armed-bandits
-pip install -r requirements.txt
+pip install -U -r requirements.txt
 ```
 
 Open the ``MyBandit.py`` file in the project's root directory. You will see an implementation of a simple epsilon-greedy bandit.
