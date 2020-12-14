@@ -24,9 +24,9 @@ class OthelloAlgorithm(ABC):
     @abstractmethod
     def evaluate(self, othello_position):
         """
-        Returns the OthelloAction the algorithm considers to be the best move given an OthelloPosition
+        Returns the OthelloMove the algorithm considers to be the best move given an OthelloPosition
         :param othello_position: The OthelloPosition to evaluate
-        :return: The move to make as an OthelloAction
+        :return: The move to make as an OthelloMove
         """
         pass
 

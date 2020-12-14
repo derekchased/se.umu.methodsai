@@ -1,5 +1,5 @@
 import numpy as np
-from OthelloAction import OthelloAction
+from OthelloMove import OthelloMove
 
 
 class OthelloPosition(object):
@@ -44,25 +44,52 @@ class OthelloPosition(object):
         Initializes the position by placing four markers in the middle of the board.
         :return: Nothing
         """
+        print(" HEY INITIALIZE")
         self.board[self.BOARD_SIZE // 2][self.BOARD_SIZE // 2] = 'W'
         self.board[self.BOARD_SIZE // 2 + 1][self.BOARD_SIZE // 2 + 1] = 'W'
         self.board[self.BOARD_SIZE // 2][self.BOARD_SIZE // 2 + 1] = 'B'
         self.board[self.BOARD_SIZE // 2 + 1][self.BOARD_SIZE // 2] = 'B'
         self.maxPlayer = True
 
-    def make_move(self, action):
+    def make_move(self, move):
         """
-        Perform the move suggested by the OhelloAction action and return the new position. Observe that this also
+        Perform the move suggested by the OhelloMove move and return the new position. Observe that this also
         changes the player to move next.
-        :param action: The move to make as an OthelloAction
-        :return: The OthelloPosition resulting from making the move action in the current position.
+        :param move: The move to make as an OthelloMove
+        :return: The OthelloPosition resulting from making the move move in the current position.
         """
         # TODO: write the code for this method and whatever helper methods it need
+
+        row = move.row
+        col = move.col
+
+        flipfuncs = [self.__check_north, self.__check_north_east, self.__check_east,
+            self.__check_south_east, self.__check_south, self.__check_south_west,
+            self.__check_west, self.__check_north_west]
+
+        flips = [] 
+        for flipfunc in flipfuncs:
+            result = flipfunc(row,col)
+            if(result):
+                print(flipfunc, result)
+                for flip in result:
+                    flips.append( flip  )
+                
+            
+        # print("DDD",flips)
+
+        for flip in flips:
+            print(flip)
+            self.board[flip[0]][flip[1]] = 'W' if self.maxPlayer else 'B'
+
+
+        self.board[move.row][move.col] = 'W' if self.maxPlayer else 'B'
+        self.maxPlayer = not self.maxPlayer
 
     def get_moves(self):
         """
         Get all possible moves for the current position
-        :return: A list of OthelloAction representing all possible moves in the position. If the
+        :return: A list of OthelloMove representing all possible moves in the position. If the
         list is empty, there are no legal moves for the player who has the move.
         """
         moves = []
@@ -70,7 +97,7 @@ class OthelloPosition(object):
         for i in range(self.BOARD_SIZE):
             for j in range(self.BOARD_SIZE):
                 if self.__is_candidate(i + 1, j + 1) and self.__is_move(i + 1, j + 1):
-                    append(OthelloAction(i + 1, j + 1))
+                    append(OthelloMove(i + 1, j + 1))
         return moves
 
     def __is_candidate(self, row, col):
@@ -122,11 +149,14 @@ class OthelloPosition(object):
         if not self.__is_opponent_square(row - 1, col):
             return False
         i = row - 2
+        flips=[]
         while i > 0:
             if self.board[i][col] == 'E':
                 return False
             if self.__is_own_square(i, col):
-                return True
+                flips.append((i+1,col))
+                return flips
+            flips.append((i+1,col))
             i -= 1
         return False
 
@@ -140,13 +170,17 @@ class OthelloPosition(object):
         if not self.__is_opponent_square(row - 1, col + 1):
             return False
         i = 2
+        flips = []
         while row - i > 0 and col + i <= self.BOARD_SIZE:
             if self.board[row - i][col + i] == 'E':
                 return False
             if self.__is_own_square(row - i, col + i):
-                return True
+                flips.append((row-i+1,col+i-1))
+                return flips
+            flips.append((row-i+1,col+i-1))
             i += 1
         return False
+
 
     def __check_north_west(self, row, col):
         """
@@ -158,11 +192,14 @@ class OthelloPosition(object):
         if not self.__is_opponent_square(row - 1, col - 1):
             return False
         i = 2
+        flips = []
         while row - i > 0 and col - i > 0:
             if self.board[row - i][col - i] == 'E':
                 return False
             if self.__is_own_square(row - i, col - i):
-                return True
+                flips.append((row-i+1,col-i+1))
+                return flips
+            flips.append((row-i+1,col-i+1))
             i += 1
         return False
 
@@ -176,11 +213,14 @@ class OthelloPosition(object):
         if not self.__is_opponent_square(row + 1, col):
             return False
         i = row + 2
+        flips = []
         while i <= self.BOARD_SIZE:
             if self.board[i][col] == 'E':
                 return False
             if self.__is_own_square(i, col):
-                return True
+                flips.append((i-1,col))
+                return flips
+            flips.append((i-1,col))
             i += 1
         return False
 
@@ -194,11 +234,14 @@ class OthelloPosition(object):
         if not self.__is_opponent_square(row + 1, col + 1):
             return False
         i = 2
+        flips = []
         while row + i <= self.BOARD_SIZE and col + i <= self.BOARD_SIZE:
             if self.board[row + i][col + i] == 'E':
                 return False
             if self.__is_own_square(row + i, col + i):
-                return True
+                flips.append((row+i-1,col+i-1))
+                return flips
+            flips.append((row+i-1,col+i-1))
             i += 1
         return False
 
@@ -212,11 +255,14 @@ class OthelloPosition(object):
         if not self.__is_opponent_square(row + 1, col - 1):
             return False
         i = 2
+        flips = []
         while row + i <= self.BOARD_SIZE and col - i > 0:
             if self.board[row + i][col - i] == 'E':
                 return False
             if self.__is_own_square(row + i, col - i):
-                return True
+                flips.append((row+i-1,col-i+1))
+                return flips
+            flips.append((row+i-1,col-i+1))
             i += 1
         return False
 
@@ -230,11 +276,14 @@ class OthelloPosition(object):
         if not self.__is_opponent_square(row, col - 1):
             return False
         i = col - 2
+        flips = []
         while i > 0:
             if self.board[row][i] == 'E':
                 return False
             if self.__is_own_square(row, i):
-                return True
+                flips.append((row,i+1))
+                return flips
+            flips.append((row,i+1))
             i -= 1
         return False
 
@@ -248,11 +297,14 @@ class OthelloPosition(object):
         if not self.__is_opponent_square(row, col + 1):
             return False
         i = col + 2
+        flips = []
         while i <= self.BOARD_SIZE:
             if self.board[row][i] == 'E':
                 return False
             if self.__is_own_square(row, i):
-                return True
+                flips.append((row,i-1))
+                return flips
+            flips.append((row,i-1))
             i += 1
         return False
 
@@ -330,4 +382,12 @@ class OthelloPosition(object):
         :return: Nothing
         """
         print(self.board)
+        # print("ToMove: ", self.maxPlayer)
+
+    def str_board(self):
+        """
+        Prints the current board. Do not use when running othellostart (it will crash)
+        :return: Nothing
+        """
+        return(self.board)
         # print("ToMove: ", self.maxPlayer)
