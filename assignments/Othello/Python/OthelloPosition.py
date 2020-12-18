@@ -44,7 +44,6 @@ class OthelloPosition(object):
         Initializes the position by placing four markers in the middle of the board.
         :return: Nothing
         """
-        print(" HEY INITIALIZE")
         self.board[self.BOARD_SIZE // 2][self.BOARD_SIZE // 2] = 'W'
         self.board[self.BOARD_SIZE // 2 + 1][self.BOARD_SIZE // 2 + 1] = 'W'
         self.board[self.BOARD_SIZE // 2][self.BOARD_SIZE // 2 + 1] = 'B'
@@ -60,30 +59,31 @@ class OthelloPosition(object):
         """
         # TODO: write the code for this method and whatever helper methods it need
 
-        row = move.row
-        col = move.col
+        if(not move.is_pass_move):
+            row = move.row
+            col = move.col
 
-        flipfuncs = [self.__check_north, self.__check_north_east, self.__check_east,
-            self.__check_south_east, self.__check_south, self.__check_south_west,
-            self.__check_west, self.__check_north_west]
+            flipfuncs = [self.__check_north, self.__check_north_east, self.__check_east,
+                self.__check_south_east, self.__check_south, self.__check_south_west,
+                self.__check_west, self.__check_north_west]
 
-        flips = [] 
-        for flipfunc in flipfuncs:
-            result = flipfunc(row,col)
-            if(result):
-                #print(flipfunc, result)
-                for flip in result:
-                    flips.append( flip  )
-                
-            
-        # print("DDD",flips)
+            flips = [] 
+            for flipfunc in flipfuncs:
+                result = flipfunc(row,col)
+                if(result):
+                    #print(flipfunc, result)
+                    for flip in result:
+                        flips.append( flip  )
+                    
+            # print("DDD",flips)
 
-        for flip in flips:
-            #print(flip)
-            self.board[flip[0]][flip[1]] = 'W' if self.maxPlayer else 'B'
+            for flip in flips:
+                #print(flip)
+                self.board[flip[0]][flip[1]] = 'W' if self.maxPlayer else 'B'
 
 
-        self.board[move.row][move.col] = 'W' if self.maxPlayer else 'B'
+            self.board[move.row][move.col] = 'W' if self.maxPlayer else 'B'
+        
         self.maxPlayer = not self.maxPlayer
 
     def get_moves(self):
