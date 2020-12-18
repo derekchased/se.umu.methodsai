@@ -22,14 +22,23 @@ def simulate(bandit, iterations):
     :param iterations: The number of iterations that the bandit should be run
     :return:
     """
+
+    # accumulated rewards over all iterations
     acc_rewards = [0 for _ in range(6)]
 
     for _ in range(iterations):
+
+        # expected rewards, changes on each iteration
+        # arms 0 through 3
         expected_rewards_approx = [
             1 + (random() / 2) for _ in range(4)
         ]
+
+        # expected rewards, last two arms have some specific setting
+        # for purpose of the simulation
         expected_rewards_approx.append(-5)
         expected_rewards_approx.append(-10)
+
         for (index, reward) in enumerate(expected_rewards_approx):
             expected_rewards_approx[index] = reward + (random() - 0.5) * reward * 0.75
         for arm_index in range(6):

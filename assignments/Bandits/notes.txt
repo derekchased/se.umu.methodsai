@@ -1,0 +1,15 @@
+Must be good in dynamic environment
+- arms will change their base reward over time
+
+
+1. Epsilon greedy
+2. Epsilon decay
+3. Consider how often an arm has been pulled
+- Upper confidence bound
+- if it is underxplored, pull it
+- if it is overexplored, pull it less
+4. Sliding window only consider x most recent rewards of an arm
+5. discard clearly bad arms
+6. thompson sampling
+- assumes known initial distribituion over action values
+- allows theoretically to compute optimal exploration vs exploitation balance

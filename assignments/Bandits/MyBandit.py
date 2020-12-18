@@ -31,10 +31,18 @@ class Bandit:
 
         :return: Returns the arm the bandit recommends pulling
         """
+
+        # decision making part
+
+        # if arm has not been run, run it
         if min(self.frequencies) == 0:
             return self.arms[self.frequencies.index(min(self.frequencies))]
+
+        # randomly pick an arm (less than .1 chance)
         if random.random() < self.epsilon: 
             return self.arms[random.randint(0, len(self.arms) - 1)]
+
+        # otherwise, return the best arm
         return self.arms[self.expected_values.index(max(self.expected_values))]
 
     def give_feedback(self, arm, reward):
@@ -44,6 +52,9 @@ class Bandit:
         :param arm: The arm that was pulled to generate the reward
         :param reward: The reward that was generated
         """
+
+        # more precise history of the arm runs
+
         arm_index = self.arms.index(arm)
         sum = self.sums[arm_index] + reward
         self.sums[arm_index] = sum
