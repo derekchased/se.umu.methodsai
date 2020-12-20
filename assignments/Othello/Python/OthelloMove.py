@@ -1,4 +1,4 @@
-class OthelloAction(object):
+class OthelloMove(object):
     """
       This class represents a 'move' in a game.
       The move is simply represented by two integers: the row and the column where the player puts the marker and a
@@ -9,7 +9,7 @@ class OthelloAction(object):
       Author: Ola Ringdahl
     """
 
-    def __init__(self, row, col, is_pass_move=False):
+    def __init__(self, row=-1, col=-1, value=0, is_pass_move=False):
         """
         Creates a new OthelloAction for (row, col) with value 0.
         :param row: Row
@@ -18,8 +18,9 @@ class OthelloAction(object):
         """
         self.row = row
         self.col = col
+        self.value = value
         self.is_pass_move = is_pass_move
-        self.value = 0
+        
 
     def print_move(self):
         """
@@ -30,3 +31,9 @@ class OthelloAction(object):
             print("pass")
         else:
             print("(" + str(self.row) + "," + str(self.col) + ")")
+
+    def __repr__(self):
+      if self.is_pass_move:
+        return "pass"
+      else:
+        return "("+str(self.value)+"," + str(self.row) + "," + str(self.col) + ")"
