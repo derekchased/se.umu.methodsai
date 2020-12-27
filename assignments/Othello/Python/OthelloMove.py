@@ -9,7 +9,7 @@ class OthelloMove(object):
       Author: Ola Ringdahl
     """
 
-    def __init__(self, row=-1, col=-1, is_pass_move=False, value="", path=None):
+    def __init__(self, row=-1, col=-1, value=0, is_pass_move=False):
         """
         Creates a new OthelloMove for (row, col) with value 0.
         :param row: Row
@@ -18,10 +18,8 @@ class OthelloMove(object):
         """
         self.row = row
         self.col = col
-        self.is_pass_move = is_pass_move
         self.value = value
-        self.path = path
-
+        self.is_pass_move = is_pass_move
     def print_move(self):
         """
         Prints the move on the format (3,6) or Pass
@@ -30,7 +28,7 @@ class OthelloMove(object):
         if self.is_pass_move:
             print("pass")
         else:
-            print("(" + str(self.row) + "," + str(self.col)+ ")")
+            print("(" + str(self.row) + "," + str(self.col) + ")")
 
     def __repr__(self):
       if self.is_pass_move:

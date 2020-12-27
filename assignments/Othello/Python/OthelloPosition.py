@@ -71,20 +71,17 @@ class OthelloPosition(object):
             for flipfunc in flipfuncs:
                 result = flipfunc(row,col)
                 if(result):
-                    #print(flipfunc, result)
                     for flip in result:
                         flips.append( flip  )
                     
-            # print("DDD",flips)
-
             for flip in flips:
-                #print(flip)
                 self.board[flip[0]][flip[1]] = 'W' if self.maxPlayer else 'B'
 
 
             self.board[move.row][move.col] = 'W' if self.maxPlayer else 'B'
-        
+            self.move_made = (move.row,move.col)
         self.maxPlayer = not self.maxPlayer
+
 
     def get_moves(self):
         """
