@@ -25,7 +25,6 @@ class OthelloPosition(object):
         self.BOARD_SIZE = 8
         self.maxPlayer = True
         self.board = np.array([['E' for col in range(self.BOARD_SIZE + 2)] for row in range(self.BOARD_SIZE + 2)])
-        self.moves = None
         if len(list(board_str)) >= 65:
             if board_str[0] == 'W':
                 self.maxPlayer = True
@@ -80,8 +79,9 @@ class OthelloPosition(object):
 
 
             self.board[move.row][move.col] = 'W' if self.maxPlayer else 'B'
-        
+            self.move_made = (move.row,move.col)
         self.maxPlayer = not self.maxPlayer
+
 
     def get_moves(self):
         """

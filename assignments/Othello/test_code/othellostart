@@ -14,8 +14,8 @@ fi
 pos="WEEEEEEEEEEEEEEEEEEEEEEEEEEEOXEEEEEEXOEEEEEEEEEEEEEEEEEEEEEEEEEEE"
 java Printer $pos
 
-white="$1" # the program playing white
-black="$2" # the program playing black
+white="$2" # the program playing white
+black="$1" # the program playing black
 time="$3"  # timelimit
 endgame="no"
 whitepass="no"

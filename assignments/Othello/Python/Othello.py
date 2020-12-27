@@ -6,7 +6,7 @@ from OthelloPosition import OthelloPosition
 from OthelloMove import OthelloMove
 from OthelloHeuristics import OthelloHeuristics
 
-class Othello:
+class Othello():
 	"""
 	Container program to receive system arguments and run the game search 
 	within the given time limit
@@ -23,15 +23,21 @@ class Othello:
 		    time_limit (int): The time limit in seconds
 		"""
 		# Start timer immediately for fairness
-		self._timer = threading.Timer(time_limit, self._times_up)
-		self._timer.start()
-		self._root_position = OthelloPosition(position_str)
-		self._return_move = OthelloMove(row=-1, col=-1, is_pass_move=True)
-		self._othello_evaluator = OthelloHeuristics("W" if self._root_position.maxPlayer else "B")
-		self._othello_ab_id_search = OthelloABIDSearch(self._root_position, self._return_move, self._othello_evaluator, 30, self._timer)
-		self._main()
+		timer = threading.Timer(time_limit, self._times_up)
+		timer.start()
+		root_position = OthelloPosition(position_str)
+		return_move = OthelloMove(row=-1, col=-1, is_pass_move=True)
+		if(root_position.maxPlayer):
+			player = "W"
+			opponent = "B"
+		else:
+			player = "B"
+			opponent = "W"
+		othello_evaluator =  OthelloHeuristics(player, opponent)
+		self._othello_ab_id_search = OthelloABIDSearch(root_position, return_move, othello_evaluator, 0, 9, True)
+		
 
-	def _main(self):
+	def main(self):
 		"""
 		Run the program within the time limit
 		"""
@@ -51,17 +57,21 @@ class Othello:
 		try:
 			raise Exception('times up')
 		except:
-			print("times up")
-			print("self._return_move", type(self._return_move),self._return_move)
-			self._return_move.print_move()
+			#print("times up")
+			#print("self._othello_ab_id_search._return_move",self._othello_ab_id_search._return_move)
+			self._othello_ab_id_search._return_move.print_move()
+			#print("times up end")
 			self._othello_ab_id_search.is_alive = False
+			sys.exit()
 
 if __name__ == "__main__":
 	
 	if(len(sys.argv)>=2):
 		othello = Othello(sys.argv[1], int(sys.argv[2])) 
-	else:
-		othello = Othello('WEEEEEEEEEEEEEEEEEEEEEEEEEEEOXEEEEEEXOEEEEEEEEEEEEEEEEEEEEEEEEEEE', 
-			5) 
+		othello.main()
+	else:				#	1		2		3		4		5		6		7		8
+		#					1234567812345678123456781234567812345678123456781234567812345678
+		othello = Othello('WEEEEEEEEEEEEEEEEEEEEEEEEEEEOXEEEEEEXOEEEEEEEEEEEEEEEEEEEEEEEEEEE', 5) 
+		othello.main()
 
 
