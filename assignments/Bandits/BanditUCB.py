@@ -1,17 +1,11 @@
 # epsilon-greedy example implementation of a multi-armed bandit
 import random
+import numpy as np
 
-import os,sys,inspect
-current_dir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
-parent_dir = os.path.dirname(current_dir)
-sys.path.insert(0, parent_dir)
-
-
-class Bandit:
+class BanditUCB:
     """
-    Generic epsilon-greedy bandit that you need to improve
+    Generic epsilon-greedy bandit that you need to benchmark again
     """
-
     def __init__(self, arms, epsilon=0.1):
         """
         Initiates the bandits
@@ -68,3 +62,17 @@ class Bandit:
         self.observations[arm_index].append(reward)
         self.sums = [sum(x) for x in self.observations]
         self.frequencies = [len(x) for x in self.observations]
+
+"""b = BanditUCB(["a","b","c"])
+for i in range(10000):
+    #b.observations[random.randint(0, len(b.arms) - 1)].append(i)
+    arm = b.run()
+
+    b.give_feedback(arm,i,0)
+
+print("b.observations",b.observations)
+print("sums",b.sums)
+print("frequencies",b.frequencies)
+print("expected_values",b.expected_values())
+print("N",b.N())
+print("history",b.history)"""
