@@ -55,7 +55,7 @@ class Bandit:
         if min(self.frequencies) == 0:
             return self.arms[self.frequencies.index(min(self.frequencies))]
         
-        return self.arms[ucb_index()]
+        return self.arms[self.ucb_index()]
 
     def ucb_index(self):
         """
