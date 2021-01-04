@@ -1,6 +1,6 @@
 # epsilon-greedy example implementation of a multi-armed bandit
 import random
-
+import numpy as np
 import os,sys,inspect
 current_dir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 parent_dir = os.path.dirname(current_dir)
@@ -12,7 +12,7 @@ class Bandit:
     Generic epsilon-greedy bandit that you need to improve
     """
 
-    def __init__(self, arms, epsilon=0.1):
+    def __init__(self, arms, epsilon=0.6):
         """
         Initiates the bandits
 
@@ -56,7 +56,7 @@ class Bandit:
 
         return self.arms[ np.argmax(self.expected_values())  ]
 
-    def give_feedback(self, arm, reward,alpha):
+    def give_feedback(self, arm, reward):
         """
         Sets the bandit's reward for the most recent arm pull
 
