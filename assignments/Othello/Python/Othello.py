@@ -13,19 +13,19 @@ class Othello():
 
 	def __init__(self, position_str, time_limit):
 		"""
-		Instantiates and starts a thread timer with the given time limit and a game
-		search with the given game string
+		Instantiates components needed for the game including timer, root position and
+		root player, return move, heuristics and search
 		
 		Args:
 		    position_str (str): The serialized game string that represents
 		    the starting player and the board
 		    time_limit (int): The time limit in seconds
 		"""
-		# Start timer immediately for fairness
-		timer = threading.Timer(time_limit, self._times_up)
-		timer.start()
+		self._timer = threading.Timer(time_limit, self._times_up)
+		
 		root_position = OthelloPosition(position_str)
 		return_move = OthelloMove(row=-1, col=-1, is_pass_move=True)
+		
 		if(root_position.maxPlayer):
 			player = "W"
 			opponent = "B"
@@ -33,22 +33,23 @@ class Othello():
 			player = "B"
 			opponent = "W"
 		othello_evaluator =  OthelloHeuristics(player, opponent)
-		self._othello_ab_id_search = OthelloABIDSearch(root_position, return_move, othello_evaluator, 0, 9, True)
+		
+		self._othello_ab_id_search = OthelloABIDSearch(root_position, return_move, othello_evaluator, 2, 30, True)
 		
 
 	def main(self):
 		"""
-		Run the program within the time limit
+		Start the game
 		"""
+		self._timer.start()
 		self._othello_ab_id_search.ab_id_search()
 		
 	
 	def _times_up(self):
 		"""Summary
 		When the game timer is up, this function will interrupt
-		the game search thread and print whatever the most recent
-		move is. It will then exit the program (this call might be 
-		unnecessary)
+		the game search thread (Iterative deepening search) and print 
+		whatever the most recent move is and exit the program
 		
 		Raises:
 		    Exception: Generic exception
@@ -56,20 +57,19 @@ class Othello():
 		try:
 			raise Exception('times up')
 		except:
-			#print("times up")
-			#print("self._othello_ab_id_search._return_move",self._othello_ab_id_search._return_move)
 			self._othello_ab_id_search._return_move.print_move()
-			#print("times up end")
 			self._othello_ab_id_search.is_alive = False
 			sys.exit()
 
 if __name__ == "__main__":
-	
-	if(len(sys.argv)>=2):
-		othello = Othello(sys.argv[1], int(sys.argv[2])) 
+	if(len(sys.argv)>=3):
+		game_str = sys.argv[1]
+		if(len(game_str) != 65):
+			print('Incorrect game string length')	
+			sys.exit()
+		time_limit = int(sys.argv[2])
+		othello = Othello(game_str, time_limit) 
 		othello.main()
-	else:				#	1		2		3		4		5		6		7		8
-		#					1234567812345678123456781234567812345678123456781234567812345678
-		othello = Othello('WEEEEEEEEEEEEEEEEEEEEEEEEEEEOXEEEEEEXOEEEEEEEEEEEEEEEEEEEEEEEEEEE', 5) 
-		othello.main()
-
+	else:
+		print('Incorrect number of arguments')
+		sys.exit()

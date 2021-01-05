@@ -15,8 +15,8 @@ pos="WEEEEEEEEEEEEEEEEEEEEEEEEEEEOXEEEEEEXOEEEEEEEEEEEEEEEEEEEEEEEEEEE"
 #pos="BEEOOOEEEEEEEOEEEOOOOOOEEOOXOOXOEEEOOXOOEEEXOOEEEEXXOEEEEXEEEEEEE"
 java Printer $pos
 
-white="$2" # the program playing white
-black="$1" # the program playing black
+white="$2" # the program playing white (1=naive, 2=human)
+black="$1" # the program playing black (1=naive, 2=human)
 time="$3"  # timelimit
 endgame="no"
 whitepass="no"
