@@ -1,52 +1,43 @@
 """ Robot path following implementation based on the Pure Pursuit algorithm """
+from LaserSensorModel import LaserSensorModel
+from OccupancyGrid import OccupancyGrid
+from robot import Robot
+from show_map import *
 
-from Robot import *
-from Path import *
-from ShowPath import *
-import matplotlib.pyplot as plt
-import numpy as np
-import NPFunctions as npf
-from RobotDrive import RobotDrive
 
 class RobotController:
 
     # Constructor, takes path filename
-    def __init__(self, path_name):
-        self._robot = Robot()
+    def __init__(self):
+        self.__robot = Robot()
 
-        # Create path and convert from json to numpy matrix
-        p = Path(path_name)
-        self._path = p.getPath()
-        self._path_matrix = npf.conv_path_to_np(self._path)
-
-        # Show path to user
-        self._sp = ShowPath(self._path)
-
-        # Create Driving Module
-        self._robot_drive = RobotDrive(self._robot, self._path_matrix, self._sp)
-
-        
-        
+        self.__local_map = OccupancyGrid(-20, -20, 0.2, 200, 200)
+        self.__laser = LaserSensorModel(self.__robot, self.__local_map)
+        self.__show_map = ShowMap(200, 200, False)
 
 
     def start_robot(self):
-        # Start robot driving
-        self._robot_drive.start_robot()
-        self._robot_drive.drive_robot()
+        stop_time = time.time() + 3
+
+        # self.__laser.update_grid()
+        while time.time() < stop_time:
+            self.__laser.update_grid()
+
+            time.sleep(0.1)
+
+        # Get robot XY position
+        position_wcs = self.__robot.getPosition()
+        # Calculate the robot's position on the grid.
+        robot_x_grid, robot_y_grid = self.__local_map.pos_to_grid(position_wcs['X'], position_wcs['Y'])
+        self.__show_map.updateMap(self.__local_map.get_grid(), 1, robot_x_grid, robot_y_grid)
+        self.__show_map.close()
+
 
     def stop_robot(self):
-        self._robot_drive.stop_robot()
-        self._sp.pause_the_plot()
+        pass
 
 
 
 if __name__ == "__main__":
-    # Available paths:
-    # Path-around-table-and-back.json
-    # Path-around-table.json
-    # Path-to-bed.json
-    # Path-from-bed.json
-    # Filename of the path is passed in through the command line argument
-    # robotController = RobotController(sys.argv[1])
-    robotController = RobotController("Path-around-table-and-back.json")
+    robotController = RobotController()
     robotController.start_robot()
