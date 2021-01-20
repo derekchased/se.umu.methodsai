@@ -6,9 +6,13 @@ import math
 import numpy as np
 import NPFunctions as npf
 
-LOOK_AHEAD_DISTANCE = 1
+#LOOK_AHEAD_DISTANCE = 1
+LOOK_AHEAD_DISTANCE = 3
 # Robot should stop within 1 unit
-GOAL_THRESHOLD = .5
+#GOAL_THRESHOLD = .5
+GOAL_THRESHOLD = 1
+
+UPDATE_INTERVAL = .1
 
 LINEAR_SPEED_LEVEL_1 = 0.2
 LINEAR_SPEED_LEVEL_2 = 0.25
@@ -19,23 +23,40 @@ LINEAR_SPEED_LEVEL_5 = 0.4
 class RobotDrive:
 
     # Constructor, takes path filename
-    def __init__(self, robot, path_matrix, sp):
+    def __init__(self, robot):
         self._robot = robot
-        self.set_path(path_matrix)
-        self._LOOK_AHEAD_DISTANCE = LOOK_AHEAD_DISTANCE
         self._running = False
-        self._sp = sp
 
     def drive_robot(self):
+        self.start_robot()
+
         # Update robot heading and velocity every .35 seconds, while status is True
-        while self.get_running_status() == True:
-            time.sleep(0.1)
-            self.take_step()
+        while self.get_running_status():
+            time.sleep(UPDATE_INTERVAL)
+            self._take_step()
 
         # Stop the robot
         self._robot.setMotion(0.0,0.0)
 
-    def set_path(self, path_matrix):
+    def set_WCS_coordinates(self, wcs_x, wcs_y, wcs_z=0):
+        """
+        Sets a single coordinate for the robot to navigate to
+        
+        Args:
+            wcs_x (float): x position
+            wcs_y (float): y position
+            wcs_z (float, optional): z position (not used by robot i think??)
+        """
+        self._path_matrix = np.array([wcs_x, wcs_y,wcs_z]).reshape(1,3)
+        print("self._path_matrix",self._path_matrix, self._path_matrix)
+
+    def set_WCS_path(self, path_matrix):
+        """
+        Sets a series of coordinates along a path for the robot to navigate through
+        
+        Args:
+            path_matrix (numpy): a matrix of coordinates [ (x, y, z), (x, y, z), ...]
+        """
         self._path_matrix = path_matrix
 
     def start_robot(self):
@@ -43,6 +64,9 @@ class RobotDrive:
 
     def stop_robot(self):
         self._running = False
+
+    def get_running_status(self):
+        return self._running
 
     # Main method to determine and update robot's velocity and heading
     def take_step(self):
@@ -104,15 +128,9 @@ class RobotDrive:
         # Shorten the path matrix
         self._path_matrix = self._path_matrix[goal_point_index:,:]
 
-        # Plot the robots point
-        self._sp.update(self._robot.getPosition(), self._goal_point_coordinate_world)
-
         # Determine if robot should stop
         if (len(self._path_matrix) == 1 and self._robot_to_path_distances[0] < GOAL_THRESHOLD):
             self._running = False
-
-    def get_running_status(self):
-        return self._running
 
     def _find_goal_point_index(self):
 

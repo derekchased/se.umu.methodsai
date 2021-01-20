@@ -4,6 +4,9 @@ import numpy as np
 def conv_pos_to_np(pos):
     return np.array([pos["X"], pos["Y"], pos["Z"]])
 
+def conv_pos_to_np_path_matrix(pos):
+    return conv_pos_to_np(pos).reshape(1,3)
+
 # Take a path from provided path files and convert it to a numpy array
 def conv_path_to_np(p):
     return np.array(  [ conv_pos_to_np(pos) for pos in p  ])
@@ -23,7 +26,6 @@ def compute_distances_vector_matrix(robot_pos, path_matr):
             I just need a list of the relative distances. Since the sq root is 
             monotonic, it preserverses the order.         
         """
-        
         # Convert position vector into a matrix
         robot_pos_matr = np.full(path_matr.shape,robot_pos)
 
