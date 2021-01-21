@@ -76,10 +76,10 @@ class ShowMap(object):
                 # where 0 is black and 255 is white
                 if value < 0:
                     # set pixel value to gray
-                    self.__image.putpixel((col, row), 127)
+                    self.__image.putpixel((row, col), 127)
                 else:
                     # set pixel value
-                    self.__image.putpixel((col, row), abs(value * 255 / maxValue - 255))
+                    self.__image.putpixel((row, col), abs(value * 255 / maxValue - 255))
 
         # update the plot withe new image
         self.__ax.clear()
@@ -90,7 +90,7 @@ class ShowMap(object):
         self.__ax.set_yticks([])
 
         # plot the robot pose
-        self.__ax.plot((robot_col), (robot_row), 'rs', markersize=self.__robot_size)
+        self.__ax.plot((robot_row), (robot_col), 'rs', markersize=self.__robot_size)
 
         # draw new figure
         self.__fig.canvas.draw()
