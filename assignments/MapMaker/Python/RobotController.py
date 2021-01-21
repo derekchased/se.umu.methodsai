@@ -40,7 +40,7 @@ class RobotController:
 
         self.__show_map.close()
         self.__robot_drive.stop_robot()
-        self.__robot.setMotion(0.0,0.0)
+        self.__robot.setMotion(0.0, 0.0)
 
 
     def take_scan(self):
@@ -62,7 +62,7 @@ class RobotController:
 
     def take_step(self):
         robot_position_vector = npf.conv_pos_to_np(self.__robot.getPosition())
-        self.__robot_drive.set_WCS_coordinates(robot_position_vector[0]-10, robot_position_vector[1]-10)
+        self.__robot_drive.set_WCS_coordinates(robot_position_vector[0]-5, robot_position_vector[1]+10)
         self.__robot_drive.start_robot()
 
 if __name__ == "__main__":

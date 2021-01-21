@@ -19,13 +19,16 @@ class LaserSensorModel:
         # Get the distances of all laser beams in meters (?)
         laser_scan = self.__robot.getLaser()['Echoes']
 
+        # Get robot heading angle.
+        heading = self.__robot.getHeading()
+
         # Get robot XY position
         position_wcs = self.__robot.getPosition()
         # Calculate the robot's position on the grid.
         robot_x_grid, robot_y_grid = self.__grid.pos_to_grid(position_wcs['X'], position_wcs['Y'])
 
         for angle, distance in zip(laser_angles, laser_scan):
-            self.__process_beam(robot_x_grid, robot_y_grid, angle, distance)
+            self.__process_beam(robot_x_grid, robot_y_grid, angle + heading, distance)
 
     def __process_beam(self, robot_x_grid, robot_y_grid, beam_angle, beam_distance):
         # Assumed distance error in laser measurement. Obstacle size on grid is taken as 2*distance_error.
