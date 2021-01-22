@@ -40,6 +40,6 @@ class OccupancyGrid:
         :param y_wcs: y-position in the world
         :return: A tuple with (row,col)
         """
-        col = int((x_wcs - self.x_anchor) / self.cell_size)
-        row = int((y_wcs - self.y_anchor) / self.cell_size)
+        col = ((x_wcs - self.x_anchor) / self.cell_size)
+        row = ((y_wcs - self.y_anchor) / self.cell_size)
         return row, col

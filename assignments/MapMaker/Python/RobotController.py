@@ -21,7 +21,7 @@ class RobotController:
     def main(self):
 
         # Start the robot moving to a random location
-        self.take_step()
+        #self.take_step()
 
         # Arbitrary amt of time
         stop_time = time.time() + 3
@@ -31,12 +31,12 @@ class RobotController:
         # we can consider threading or some other implementation
         while time.time() < stop_time:
             self.take_scan()
-            self.save_map()
+            # self.save_map()
 
             # again here, have to call drive on the robot directly
             # because we can't use multiple sleep() functions
             # it breaks control flow
-            self.__robot_drive.take_step()
+            #self.__robot_drive.take_step()
             time.sleep(0.1)
 
         self.save_map()
