@@ -7,7 +7,19 @@ from robot import Robot
 
 
 class LaserSensorModel:
+    
     BEAM_MAX_DISTANCE = 40
+
+    # 'depth' of an obstacle.
+    OBSTACLE_DEPTH_WCS = .8
+
+    # half of the 'width' of the laser beam in radians.
+    BEAM_WIDTH_RAD = (0.5 * np.pi) / 180
+
+    # The maximum probability to assign to obstacles.
+    # This prevents grid value from becoming 1 and never changing afterwards
+    PROB_MAX = 0.98
+    
 
     def __init__(self, robot: Robot, occupancy_grid: OccupancyGrid):
         self.__robot = robot
@@ -16,81 +28,91 @@ class LaserSensorModel:
         self.__beam_max_grid_distance = (self.BEAM_MAX_DISTANCE / occupancy_grid.cell_size)
 
     def update_grid(self):
-        # get the angle of each laser beam
-        laser_angles = self.__robot.getLaserAngles()
-        # Get the distances of all laser beams in meters (?)
-        laser_scan = self.__robot.getLaser()['Echoes']
-
+        
         # Get robot heading angle.
         heading = self.__robot.getHeading()
 
         # Get robot XY position
         position_wcs = self.__robot.getPosition()
+
         # Calculate the robot's position on the grid.
         robot_x_grid, robot_y_grid = self.__grid.pos_to_grid(position_wcs['X'], position_wcs['Y'])
+        
+        # Get the distances of all laser beams in meters (?)
+        beam_distances_wcs = np.array(self.__robot.getLaser()['Echoes'])
 
-        # Process every laser beam
-        for angle, distance in zip(laser_angles, laser_scan):
-            self.__process_beam(robot_x_grid, robot_y_grid, angle + heading, distance)
-
-    def __process_beam(self, robot_x_grid, robot_y_grid, beam_angle_rad, beam_distance_wcs):
-        # 'depth' of an obstacle.
-        obstacle_depth_wcs = .8
-        # half of the 'width' of the laser beam in radians.
-        beam_width_rad = (0.5 * np.pi) / 180
-
-        # The maximum probability to assign to obstacles.
-        # This prevents grid value from becoming 1 and never changing afterwards
-        prob_max = 0.98
-
+        # get the angle of each laser beam
+        laser_angles = np.array(self.__robot.getLaserAngles())
+        beam_angle_rads = laser_angles + heading
+        
         # The x,y location an obstacle was detected at.
-        obstacle_x_start_wcs = beam_distance_wcs * np.cos(beam_angle_rad)
-        obstacle_y_start_wcs = beam_distance_wcs * np.sin(beam_angle_rad)
-
+        obstacle_x_start_wcs = beam_distances_wcs * np.cos(beam_angle_rads)
+        obstacle_y_start_wcs = beam_distances_wcs * np.sin(beam_angle_rads)
+        
         # Corner 1 of the triangle to update
-        obstacle_x_end_left_wcs = min((beam_distance_wcs + obstacle_depth_wcs), self.BEAM_MAX_DISTANCE) * np.cos(beam_angle_rad - beam_width_rad)
-        obstacle_y_end_left_wcs = min((beam_distance_wcs + obstacle_depth_wcs), self.BEAM_MAX_DISTANCE) * np.sin(beam_angle_rad - beam_width_rad)
+        obstacle_x_end_left_wcs = np.minimum((beam_distances_wcs + self.OBSTACLE_DEPTH_WCS), self.BEAM_MAX_DISTANCE) * np.cos(beam_angle_rads - self.BEAM_WIDTH_RAD)
+        obstacle_y_end_left_wcs = np.minimum((beam_distances_wcs + self.OBSTACLE_DEPTH_WCS), self.BEAM_MAX_DISTANCE) * np.sin(beam_angle_rads - self.BEAM_WIDTH_RAD)
+        
         # Corner 2 of the triangle to update
-        obstacle_x_end_right_wcs = min((beam_distance_wcs + obstacle_depth_wcs), self.BEAM_MAX_DISTANCE) * np.cos(beam_angle_rad + beam_width_rad)
-        obstacle_y_end_right_wcs = min((beam_distance_wcs + obstacle_depth_wcs), self.BEAM_MAX_DISTANCE) * np.sin(beam_angle_rad + beam_width_rad)
+        obstacle_x_end_right_wcs = np.minimum((beam_distances_wcs + self.OBSTACLE_DEPTH_WCS), self.BEAM_MAX_DISTANCE) * np.cos(beam_angle_rads + self.BEAM_WIDTH_RAD)
+        obstacle_y_end_right_wcs = np.minimum((beam_distances_wcs + self.OBSTACLE_DEPTH_WCS), self.BEAM_MAX_DISTANCE) * np.sin(beam_angle_rads + self.BEAM_WIDTH_RAD)
 
         # Convert coordinates to grid
-        obstacle_x_start_grid, obstacle_y_start_grid = self.__grid.pos_to_grid(obstacle_x_start_wcs, obstacle_y_start_wcs)
-        obstacle_x_end_left_grid, obstacle_y_end_left_grid = self.__grid.pos_to_grid(obstacle_x_end_left_wcs, obstacle_y_end_left_wcs)
-        obstacle_x_end_right_grid, obstacle_y_end_right_grid = self.__grid.pos_to_grid(obstacle_x_end_right_wcs, obstacle_y_end_right_wcs)
+        obstacle_x_start_grid, obstacle_y_start_grid = self.__grid.pos_to_grid_np(obstacle_x_start_wcs, obstacle_y_start_wcs)
+        obstacle_x_end_left_grids, obstacle_y_end_left_grids = self.__grid.pos_to_grid_np(obstacle_x_end_left_wcs, obstacle_y_end_left_wcs)
+        obstacle_x_end_right_grids, obstacle_y_end_right_grids = self.__grid.pos_to_grid_np(obstacle_x_end_right_wcs, obstacle_y_end_right_wcs)
 
         # Distance to obstacle
-        obstacle_distance_grid = np.sqrt((obstacle_x_start_grid - robot_x_grid) ** 2 + (obstacle_y_start_grid - robot_y_grid) ** 2)
-
+        obstacle_distance_grids = np.sqrt((obstacle_x_start_grid - robot_x_grid) ** 2 + (obstacle_y_start_grid - robot_y_grid) ** 2)
+        
         # Decrease obstacle probability between the robot and the obstacle
-        for x, y in self.__triangle(
-                int(robot_x_grid), int(robot_y_grid),
-                int(obstacle_x_end_left_grid), int(obstacle_y_end_left_grid),
-                int(obstacle_x_end_right_grid), int(obstacle_y_end_right_grid)
-        ):
-            # distance from robot to point on grid
-            distance = np.sqrt((x - robot_x_grid) ** 2 + (y - robot_y_grid) ** 2)
+        #for x, y in self.__triangle(
 
-            # (R - r)/R from lecture 7, slide 13
-            distance_term = (max(self.__beam_max_grid_distance - distance, 0) / self.__beam_max_grid_distance)
 
-            # Angle between the laser beam an the current grid coordinate.
-            # This does not seem to work.
-            # angle = abs(np.arctan2(y - robot_y_grid, x - robot_x_grid) - beam_angle)
+        """print("robot_x_grid",int(robot_x_grid))
+                                print("robot_y_grid",int(robot_y_grid))
+                                print("obstacle_x_end_left_grids",obstacle_x_end_left_grids.shape,obstacle_x_end_left_grids.astype(int))
+                                print("obstacle_y_end_left_grids",obstacle_y_end_left_grids.shape, obstacle_y_end_left_grids.astype(int))
+                                print("obstacle_x_end_right_grids",obstacle_x_end_right_grids.shape,obstacle_x_end_right_grids.astype(int))
+                                print("obstacle_y_end_right_grids",obstacle_y_end_right_grids.shape,obstacle_y_end_right_grids.astype(int))"""
 
-            # (beta - alpha)/beta from lecture 7, slide 13
-            # angle_term = ((beam_width - angle) / beam_width)
-            angle_term = 1
+        #for x, y in vtri(int(robot_x_grid), int(robot_y_grid),obstacle_x_end_left_grids.astype(int), obstacle_y_end_left_grids.astype(int),obstacle_x_end_right_grids.astype(int), obstacle_y_end_right_grids.astype(int)):            # distance from robot to point on grid
+        # Decrease obstacle probability between the robot and the obstacle
+        
+        robot_x_grid_int = int(robot_x_grid)
+        robot_y_grid_int = int(robot_y_grid)
 
-            if distance < obstacle_distance_grid:
-                # Region II: grid probably empty
-                prob_empty = (distance_term + angle_term) / 2
-                prob_occupied = 1 - prob_empty
-            else:
-                # Region I: Grid probably occupied
-                prob_occupied = ((distance_term + angle_term) / 2) * prob_max
+        for obstacle_x_end_left_grid, obstacle_y_end_left_grid, obstacle_x_end_right_grid, obstacle_y_end_right_grid, obstacle_distance_grid, beam_angle_rad in zip(obstacle_x_end_left_grids.astype(int), obstacle_y_end_left_grids.astype(int), obstacle_x_end_right_grids.astype(int), obstacle_y_end_right_grids.astype(int), obstacle_distance_grids, beam_angle_rads):
+            for x, y in self.__triangle(
+                    robot_x_grid_int, robot_y_grid_int,
+                    obstacle_x_end_left_grid, obstacle_y_end_left_grid,
+                    obstacle_x_end_right_grid, obstacle_y_end_right_grid
+            ):
+                # distance from robot to point on grid
+                # r from lecture 7, slide 13
+                distance = np.sqrt((x - robot_x_grid) ** 2 + (y - robot_y_grid) ** 2)
 
-            self.__grid.update_cell(x, y, prob_occupied)
+                # (R - r)/R from lecture 7, slide 13
+                distance_term = (max(self.__beam_max_grid_distance - distance, 0) / self.__beam_max_grid_distance)
+
+                # Angle between the laser beam an the current grid coordinate.
+                # This does not seem to work.
+                # alpha from lecture 7, slide 13
+                angle = abs(np.arctan2(y - robot_y_grid, x - robot_x_grid))#-beam_angle_rad)
+
+                # (beta - alpha)/beta from lecture 7, slide 13
+                angle_term = ((self.BEAM_WIDTH_RAD - angle) / self.BEAM_WIDTH_RAD)
+                #angle_term = 1
+
+                if distance < obstacle_distance_grid:
+                    # Region II: grid probably empty
+                    prob_empty = (distance_term + angle_term) / 2
+                    prob_occupied = 1 - prob_empty
+                else:
+                    # Region I: Grid probably occupied
+                    prob_occupied = ((distance_term + angle_term) / 2) * self.PROB_MAX
+
+                self.__grid.update_cell(x, y, prob_occupied)
 
     def __triangle(self, x1: int, y1: int, x2: int, y2: int, x3: int, y3: int):
         """
