@@ -66,7 +66,7 @@ class RobotController:
 
     def take_step(self):
         robot_position_vector = npf.conv_pos_to_np(self.__robot.getPosition())
-        self.__robot_drive.set_WCS_coordinates(robot_position_vector[0]-10, robot_position_vector[1]+1)
+        self.__robot_drive.set_WCS_coordinates(robot_position_vector[0]-10, robot_position_vector[1]+5)
         self.__robot_drive.start_robot()
 
 if __name__ == "__main__":

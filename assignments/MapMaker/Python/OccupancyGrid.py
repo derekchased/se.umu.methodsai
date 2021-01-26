@@ -22,28 +22,17 @@ class OccupancyGrid:
     def get_size(self):
         return self.row_count, self.col_count
 
-    def update_grid(self, p_occupied_grid, region_III_mask):
+    def update_grid(self, p_occupied, update_mask):
+        """
+        Use recursive bayes' rule to update a masked part of the grid at once based on sensor reading.
+        """
         prior_occupied = self.__grid
         prior_empty = 1 - self.__grid
-        p_empty = 1 - p_occupied_grid
+        p_empty = 1 - p_occupied
 
-        occupied_term = p_occupied_grid * prior_occupied
+        occupied_term = p_occupied * prior_occupied
 
-        np.putmask(self.__grid, ~region_III_mask, occupied_term / (occupied_term + p_empty * prior_empty))
-
-    def update_cell(self, x_grid, y_grid, p_occupied):
-        """
-        Use recursive bayes' rule to update grid value based on sensor reading.
-        """
-        if x_grid >= self.row_count or y_grid >= self.col_count:
-            return
-        if x_grid < 0 or y_grid < 0:
-            return
-
-        prior_occupied = self.__grid[x_grid][y_grid]
-        prior_empty = 1 - prior_occupied
-
-        self.__grid[x_grid][y_grid] = (p_occupied * prior_occupied)/(p_occupied * prior_occupied + (1 - p_occupied) * prior_empty)
+        np.putmask(self.__grid, update_mask, occupied_term / (occupied_term + p_empty * prior_empty))
 
     def pos_to_grid(self, x_wcs, y_wcs):
         """
@@ -55,14 +44,3 @@ class OccupancyGrid:
         col = ((x_wcs - self.x_anchor) / self.cell_size)
         row = ((y_wcs - self.y_anchor) / self.cell_size)
         return row, col
-
-    def pos_to_grid_int(self, x_wcs, y_wcs):
-        """
-        Converts an (x,y) position in the world to a (row,col) coordinate in the grid
-        :param x_wcs: x-position in the world
-        :param y_wcs: y-position in the world
-        :return: A tuple with (row,col)
-        """
-        col = ((x_wcs - self.x_anchor) / self.cell_size)
-        row = ((y_wcs - self.y_anchor) / self.cell_size)
-        return int(row), int(col)
