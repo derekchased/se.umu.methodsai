@@ -21,7 +21,7 @@ class RobotController:
     def main(self):
 
         # Start the robot moving to a random location
-        #self.take_step()
+        self.take_step()
 
         # Arbitrary amt of time
         stop_time = time.time() + 3
@@ -36,7 +36,7 @@ class RobotController:
             # again here, have to call drive on the robot directly
             # because we can't use multiple sleep() functions
             # it breaks control flow
-            #self.__robot_drive.take_step()
+            self.__robot_drive.take_step()
             time.sleep(0.1)
 
         self.save_map()
@@ -66,7 +66,7 @@ class RobotController:
 
     def take_step(self):
         robot_position_vector = npf.conv_pos_to_np(self.__robot.getPosition())
-        self.__robot_drive.set_WCS_coordinates(robot_position_vector[0]-1, robot_position_vector[1]+1)
+        self.__robot_drive.set_WCS_coordinates(robot_position_vector[0]-10, robot_position_vector[1]+1)
         self.__robot_drive.start_robot()
 
 if __name__ == "__main__":

@@ -16,8 +16,20 @@ class OccupancyGrid:
     def get_grid(self):
         return self.__grid
 
+    def set_grid(self, grid):
+        self.__grid = grid
+
     def get_size(self):
-        return {'rows': self.row_count, 'cols': self.col_count}
+        return self.row_count, self.col_count
+
+    def update_grid(self, p_occupied_grid, region_III_mask):
+        prior_occupied = self.__grid
+        prior_empty = 1 - self.__grid
+        p_empty = 1 - p_occupied_grid
+
+        occupied_term = p_occupied_grid * prior_occupied
+
+        np.putmask(self.__grid, ~region_III_mask, occupied_term / (occupied_term + p_empty * prior_empty))
 
     def update_cell(self, x_grid, y_grid, p_occupied):
         """
@@ -44,7 +56,7 @@ class OccupancyGrid:
         row = ((y_wcs - self.y_anchor) / self.cell_size)
         return row, col
 
-    def pos_to_grid_np(self, x_wcs, y_wcs):
+    def pos_to_grid_int(self, x_wcs, y_wcs):
         """
         Converts an (x,y) position in the world to a (row,col) coordinate in the grid
         :param x_wcs: x-position in the world
@@ -53,4 +65,4 @@ class OccupancyGrid:
         """
         col = ((x_wcs - self.x_anchor) / self.cell_size)
         row = ((y_wcs - self.y_anchor) / self.cell_size)
-        return row, col
+        return int(row), int(col)
