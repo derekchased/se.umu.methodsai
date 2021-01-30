@@ -28,7 +28,7 @@ class ShowMap(object):
         self.mapName = 'map.png'
         self.first = True
         self.__robot_size = 6
-        self.__size = (gridHeight, gridWidth)
+        self.__size = (gridWidth, gridHeight)
 
         # create a grayscale image
         data = np.ones(shape=self.__size)
@@ -69,8 +69,8 @@ class ShowMap(object):
         # convert grid to a numpy matrix
         grid = np.matrix(grid)
         # mapping the grid to an Image
-        for col in range(0, self.__size[1]):
-            for row in range(0, self.__size[0]):
+        for col in range(0, self.__size[0]):
+            for row in range(0, self.__size[1]):
                 value = grid[row, col]
                 # if value is <0 draw a gray pixel else mapping the value between 0 - 255
                 # where 0 is black and 255 is white
@@ -90,7 +90,7 @@ class ShowMap(object):
         self.__ax.set_yticks([])
 
         # plot the robot pose
-        self.__ax.plot((robot_row), (robot_col), 'rs', markersize=self.__robot_size)
+        self.__ax.plot(robot_row, robot_col, 'rs', markersize=self.__robot_size)
 
         # draw new figure
         self.__fig.canvas.draw()

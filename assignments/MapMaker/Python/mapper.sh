@@ -22,4 +22,4 @@ y2="$5"
 showGUI="$6"
 
 # Run the program
-python3 Mapper.py $url $x1 $y1 $x2 $y2 $showGUI
+python3 RobotController.py $url $x1 $y1 $x2 $y2 $showGUI
