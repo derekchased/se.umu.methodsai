@@ -2,10 +2,7 @@
 import math
 import sys
 
-import matplotlib.pyplot as plt
-
 import NPFunctions as npf
-import show_map as SM
 from LaserSensorModel import LaserSensorModel
 from OccupancyGrid import OccupancyGrid
 from RobotDrive import RobotDrive
@@ -39,7 +36,7 @@ class RobotController:
         self.take_step()
 
         # Arbitrary amt of time
-        stop_time = time.time() + 10
+        stop_time = time.time() + 20
 
         # Moved everything into this main for loop because
         # we can't really use the sleep() function in multiple classes
@@ -62,7 +59,7 @@ class RobotController:
         print("take scan")
         self.__laser.update_grid()
 
-    def update_map(self, save_png=False):
+    def update_map(self):
         # Get robot XY position
         position_wcs = self.__robot.getPosition()
 
@@ -71,10 +68,6 @@ class RobotController:
 
         # Update map with latest grid values and the robot's position
         self.__show_map.updateMap(self.__local_map.get_grid(), 1, robot_x_grid, robot_y_grid)
-
-        # To see progress over time
-        if save_png:
-            SM.saveMap(plt.figure(1), "map" + str(time.time()) + ".png")
 
     def take_step(self):
         robot_position_vector = npf.conv_pos_to_np(self.__robot.getPosition())

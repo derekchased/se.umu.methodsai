@@ -1,3 +1,5 @@
+import datetime
+
 from  PIL import Image
 import numpy as np
 import time
@@ -25,7 +27,9 @@ class ShowMap(object):
             matplotlib.use('Agg')
         import matplotlib.pyplot as plt
         self.saveMapTime = 5.0
-        self.mapName = 'map.png'
+        now = datetime.datetime.now()
+        self.mapName = 'map-' + now.strftime("%Y%m%d-%H%M%S") + '-'
+        self.mapNr = 1
         self.first = True
         self.__robot_size = 6
         self.__size = (gridWidth, gridHeight)
@@ -51,7 +55,7 @@ class ShowMap(object):
         plt.show(block=False)
         self.__fig.canvas.draw()
 
-        saveMap(self.__fig, self.mapName)
+        saveMap(self.__fig, self.mapName + '000')
         self.start_time = time.time()
 
     def updateMap(self, grid, maxValue, robot_row, robot_col):
@@ -98,17 +102,19 @@ class ShowMap(object):
         # Start a time that saves the image ever n seconds
         elapsed_time = time.time() - self.start_time
         if elapsed_time >= self.saveMapTime:
-            self.t = threading.Thread(target=saveMap, args=(self.__fig, self.mapName,))
+            self.t = threading.Thread(target=saveMap, args=(self.__fig, self.mapName + f'{self.mapNr:03}',))
             self.t.start()
             self.start_time = time.time()
-        
+            self.mapNr += 1
+
         # wait a bit while the figure is updated (avoids a freeze in Windows)
         import matplotlib.pyplot as plt
         plt.pause(0.01)
 
     def close(self):
         """ Saves the last image before closing the application """
-        saveMap(self.__fig, self.mapName)
+        saveMap(self.__fig, self.mapName + f'{self.mapNr:03}')
+        self.mapNr += 1
         import matplotlib.pyplot as plt
         plt.close()
 
@@ -117,4 +123,4 @@ def saveMap(fig, mapName):
     data = np.fromstring(fig.canvas.tostring_rgb(), dtype=np.uint8, sep='')
     data = data.reshape(fig.canvas.get_width_height()[::-1] + (3,))
     img = Image.fromarray(data)
-    img.convert('RGB').save(mapName, 'PNG')
+    img.convert('RGB').save(mapName + ".png", 'PNG')
