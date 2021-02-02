@@ -44,7 +44,7 @@ class RobotController:
         
         self.__loop_running = True
         self.__robot_drive.start_robot()
-        
+
         self.main_loop()
 
     def main_loop(self):
@@ -53,13 +53,17 @@ class RobotController:
                 self.__robot.setMotion(0.0, 0.0)
                 self.take_scan()
                 self.update_map()
-                self.save_timestamp_map()
                 self.__take_a_scan = False
             if self.__robot_drive.get_running_status():
                 self.__robot_drive.take_step()
             else:
                 self.__robot.setMotion(0.0, 0.0)
             time.sleep(.1)
+
+        self.end_program()
+
+    def end_program(self):
+        self.__show_map.close()
 
     def take_scan(self):
         self.__laser.update_grid()
@@ -74,12 +78,6 @@ class RobotController:
         # Update map with latest grid values and the robot's position
         self.__show_map.updateMap(self.__local_map.get_grid(), 1, robot_x_grid, robot_y_grid)
 
-        self.__show_map.close()
-
-    def save_timestamp_map(self):
-        # To see progress over time
-        SM.saveMap(plt.figure(1), "map"+str(time.time())+".png")
-        
 
 
 if __name__ == "__main__":
