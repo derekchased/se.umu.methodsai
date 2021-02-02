@@ -6,19 +6,9 @@ import math
 import numpy as np
 import NPFunctions as npf
 
-#LOOK_AHEAD_DISTANCE = 1
-LOOK_AHEAD_DISTANCE = 3
-# Robot should stop within 1 unit
-#GOAL_THRESHOLD = .5
-GOAL_THRESHOLD = 1
-
-UPDATE_INTERVAL = .1
-
-LINEAR_SPEED_LEVEL_1 = 0.2
-LINEAR_SPEED_LEVEL_2 = 0.25
-LINEAR_SPEED_LEVEL_3 = 0.3
-LINEAR_SPEED_LEVEL_4 = 0.35
-LINEAR_SPEED_LEVEL_5 = 0.4
+LOOK_AHEAD_DISTANCE = 5
+GOAL_THRESHOLD = .5
+MAX_LINEAR_SPEED = 1
 
 class RobotDrive:
 
@@ -38,7 +28,10 @@ class RobotDrive:
         # Stop the robot
         self._robot.setMotion(0.0,0.0)
 
-    def set_WCS_coordinates(self, wcs_x, wcs_y, wcs_z=0):
+    def add_coordinate(self, robot_goto__x, robot_goto__y):
+        self.__set_WCS_coordinates(robot_goto__x, robot_goto__y)
+
+    def __set_WCS_coordinates(self, wcs_x, wcs_y, wcs_z=0):
         """
         Sets a single coordinate for the robot to navigate to
         
@@ -47,9 +40,11 @@ class RobotDrive:
             wcs_y (float): y position
             wcs_z (float, optional): z position (not used by robot i think??)
         """
-        self._path_matrix = np.array([wcs_x, wcs_y,wcs_z]).reshape(1,3)
-        print("self._path_matrix",self._path_matrix, self._path_matrix)
-
+        try:
+            self._path_matrix = np.append(self._path_matrix,np.array([wcs_x, wcs_y,wcs_z]).reshape(1,3),axis=0)
+        except:
+            self._path_matrix = np.array([wcs_x, wcs_y,wcs_z]).reshape(1,3)
+        
     def set_WCS_path(self, path_matrix):
         """
         Sets a series of coordinates along a path for the robot to navigate through
@@ -106,21 +101,13 @@ class RobotDrive:
         gp_abs_angle_RCS_degree = abs(gp_angle_RCS) * 180 / math.pi
 
         # Choose linear speed based on degree of turning angle (tighter angle, slower speed)
-        linear_speed = 0
-        if (gp_abs_angle_RCS_degree <= 10):
-            linear_speed = LINEAR_SPEED_LEVEL_5
-        elif (10 < gp_abs_angle_RCS_degree and gp_abs_angle_RCS_degree <= 20):
-            linear_speed = LINEAR_SPEED_LEVEL_4
-        elif (20 < gp_abs_angle_RCS_degree and gp_abs_angle_RCS_degree <= 30):
-            linear_speed = LINEAR_SPEED_LEVEL_3
-        elif (30 < gp_abs_angle_RCS_degree and gp_abs_angle_RCS_degree <= 45):
-            linear_speed = LINEAR_SPEED_LEVEL_2
-        elif (45 < gp_abs_angle_RCS_degree):
-            linear_speed = LINEAR_SPEED_LEVEL_1
+        linear_speed = 5
 
         # Calculate turn rate
         g = 2 * goal_point_y_RCS / LOOK_AHEAD_DISTANCE**2
         turn_rate = linear_speed * g
+        if turn_rate >= .1:  
+            linear_speed = 25
 
         # Update robot speed and turn rate
         self._robot.setMotion(linear_speed, turn_rate)

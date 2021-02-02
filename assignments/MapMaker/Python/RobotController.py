@@ -30,33 +30,38 @@ class RobotController:
         self.__laser = LaserSensorModel(self.__robot, self.__local_map)
         self.__show_map = ShowMap(width_grid, height_grid, show_gui)
 
+        self.__loop_running = False
+        self.__take_a_scan = False
+
+
     def main(self):
 
-        # Start the robot moving to a random location
-        self.take_step()
+        # arbitrary coordinates
+        robot_wcs = npf.conv_pos_to_np(self.__robot.getPosition())
+        self.__robot_drive.add_coordinate(robot_wcs[0]-2, robot_wcs[0]+2)
+        #self.__robot_drive.add_coordinate(3, 20)
+        #self.__robot_drive.add_coordinate(22, 1)
+        
+        self.__loop_running = True
+        self.__robot_drive.start_robot()
+        
+        self.main_loop()
 
-        # Arbitrary amt of time
-        stop_time = time.time() + 20
-
-        # Moved everything into this main for loop because
-        # we can't really use the sleep() function in multiple classes
-        # we can consider threading or some other implementation
-        while time.time() < stop_time:
-            self.take_scan()
-            self.update_map()
-
-            # again here, have to call drive on the robot directly
-            # because we can't use multiple sleep() functions
-            # it breaks control flow
-            self.__robot_drive.take_step()
-            time.sleep(0.1)
-
-        self.__show_map.close()
-        self.__robot_drive.stop_robot()
-        self.__robot.setMotion(0.0, 0.0)
+    def main_loop(self):
+        while self.__loop_running:
+            if self.__take_a_scan:
+                self.__robot.setMotion(0.0, 0.0)
+                self.take_scan()
+                self.update_map()
+                self.save_timestamp_map()
+                self.__take_a_scan = False
+            if self.__robot_drive.get_running_status():
+                self.__robot_drive.take_step()
+            else:
+                self.__robot.setMotion(0.0, 0.0)
+            time.sleep(.1)
 
     def take_scan(self):
-        print("take scan")
         self.__laser.update_grid()
 
     def update_map(self):
@@ -69,10 +74,12 @@ class RobotController:
         # Update map with latest grid values and the robot's position
         self.__show_map.updateMap(self.__local_map.get_grid(), 1, robot_x_grid, robot_y_grid)
 
-    def take_step(self):
-        robot_position_vector = npf.conv_pos_to_np(self.__robot.getPosition())
-        self.__robot_drive.set_WCS_coordinates(robot_position_vector[0] - 10, robot_position_vector[1] + 5)
-        self.__robot_drive.start_robot()
+        self.__show_map.close()
+
+    def save_timestamp_map(self):
+        # To see progress over time
+        SM.saveMap(plt.figure(1), "map"+str(time.time())+".png")
+        
 
 
 if __name__ == "__main__":
