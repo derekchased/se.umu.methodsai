@@ -3,6 +3,7 @@ import math
 import sys
 
 import NPFunctions as npf
+from Explorer import Explorer
 from LaserSensorModel import LaserSensorModel
 from OccupancyGrid import OccupancyGrid
 from RobotDrive import RobotDrive
@@ -23,15 +24,15 @@ class RobotController:
         width_grid = math.ceil(width_wcs / self.MAP_GRID_SIZE)
         height_grid = math.ceil(height_wcs / self.MAP_GRID_SIZE)
 
-        print(width_grid)
-        print(height_grid)
-
         self.__local_map = OccupancyGrid(x_min, y_min, self.MAP_GRID_SIZE, width_grid, height_grid)
         self.__laser = LaserSensorModel(self.__robot, self.__local_map)
         self.__show_map = ShowMap(width_grid, height_grid, show_gui)
 
+        self.__explorer = Explorer(self.__robot, self.__local_map)
+
         self.__loop_running = False
         self.__take_a_scan = False
+        self.__determine_frontiers = False
 
 
     def main(self):
@@ -54,6 +55,11 @@ class RobotController:
                 self.take_scan()
                 self.update_map()
                 self.__take_a_scan = False
+            if self.__determine_frontiers:
+                frontiers = self.__explorer.get_frontiers()
+
+                # TODO
+                # navigator.navigate_to(frontiers[0]) ?
             if self.__robot_drive.get_running_status():
                 self.__robot_drive.take_step()
             else:
