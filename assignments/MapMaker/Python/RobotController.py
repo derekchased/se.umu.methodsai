@@ -36,7 +36,6 @@ class RobotController:
 
 
     def main(self):
-
         # arbitrary coordinates
         robot_wcs = npf.conv_pos_to_np(self.__robot.getPosition())
         self.__robot_drive.add_coordinate(robot_wcs[0]-2, robot_wcs[0]+2)

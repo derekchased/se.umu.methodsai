@@ -58,7 +58,7 @@ class ShowMap(object):
         saveMap(self.__fig, self.mapName + '000')
         self.start_time = time.time()
 
-    def updateMap(self, grid, maxValue, robot_row, robot_col):
+    def updateMap(self, grid, maxValue, robot_row, robot_col):  # TODO add frontiers parameter
         """
         Creates a new BufferedImage from a grid with integer values between 0 - maxVal,
         where 0 is black and maxVal is white, with a grey scale in between. Negative values are shown as gray.
@@ -84,6 +84,8 @@ class ShowMap(object):
                 else:
                     # set pixel value
                     self.__image.putpixel((row, col), abs(value * 255 / maxValue - 255))
+
+        # TODO: for frontier in frontiers: putpixel(some other color that is not black/white/gray)
 
         # update the plot withe new image
         self.__ax.clear()

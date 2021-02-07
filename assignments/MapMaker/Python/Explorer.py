@@ -16,6 +16,9 @@ class Mark(Enum):
 
 class Explorer:
 
+    # Upper and lower bound on cell value for determining
+    # whether a cell on the map is 'unknown' for determining frontiers
+    # See also: __is_frontier_point()
     UNKNOWN_UPPER_BOUND = 0.55
     UNKNOWN_LOWER_BOUND = 0.45
 
