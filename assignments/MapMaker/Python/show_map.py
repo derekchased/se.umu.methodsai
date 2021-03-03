@@ -54,9 +54,14 @@ class ShowMap(object):
 
         plt.show(block=False)
         self.__fig.canvas.draw()
-
-        saveMap(self.__fig, self.mapName + '000')
+        self.__frontier_row = None
+        self.__frontier_col = None
+        #saveMap(self.__fig, self.mapName + '000')
         self.start_time = time.time()
+
+    def set_frontier(self, frontier_row, frontier_col):
+        self.__frontier_row = frontier_row
+        self.__frontier_col = frontier_col
 
     def updateMap(self, grid, maxValue, robot_row, robot_col):  # TODO add frontiers parameter
         """
@@ -97,6 +102,9 @@ class ShowMap(object):
 
         # plot the robot pose
         self.__ax.plot(robot_row, robot_col, 'rs', markersize=self.__robot_size)
+
+        if self.__frontier_row is not None and self.__frontier_col is not None:
+            self.__ax.plot(self.__frontier_row,self.__frontier_col, 'gs', markersize=self.__robot_size)
 
         # draw new figure
         self.__fig.canvas.draw()
