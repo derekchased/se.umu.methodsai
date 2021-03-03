@@ -72,7 +72,7 @@ class RobotDrive:
         # Find furthest valid point
         goal_point_index = self._find_goal_point_index()
 
-        print("distance to nav point"+str(goal_point_index)+":",self.__robot_to_path_distances[goal_point_index])
+        print("distance to nav point "+str(goal_point_index)+":",self.__robot_to_path_distances[goal_point_index])
 
         # Get goal point as vector
         self._goal_point_coordinate_world = self._path_matrix[goal_point_index]
