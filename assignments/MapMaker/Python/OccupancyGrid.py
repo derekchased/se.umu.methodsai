@@ -44,3 +44,15 @@ class OccupancyGrid:
         col = ((x_wcs - self.x_anchor) / self.cell_size)
         row = ((y_wcs - self.y_anchor) / self.cell_size)
         return row, col
+
+    def grid_to_pos(self, row_grid, col_grid):
+        """
+        Converts a (row, col) position in the grid to a (x,y) coordinate in world
+        :param row_grid: row index in the grid
+        :param col_grid: col index in the grid
+        :return: A tuple with (x, y)
+        :return: Also works with a numpy arrays of positions
+        """
+        x_wcs = col_grid * self.cell_size + self.x_anchor
+        y_wcs = row_grid * self.cell_size + self.y_anchor
+        return x_wcs, y_wcs
