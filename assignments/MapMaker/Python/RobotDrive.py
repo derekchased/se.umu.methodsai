@@ -14,24 +14,10 @@ class RobotDrive:
 
     # Constructor, takes path filename
     def __init__(self, robot):
-        self._robot = robot
-        self._running = False
+        self.__robot = robot
+        self.__has_navigation = False
 
-    def drive_robot(self):
-        self.start_robot()
-
-        # Update robot heading and velocity every .35 seconds, while status is True
-        while self.get_running_status():
-            time.sleep(UPDATE_INTERVAL)
-            self._take_step()
-
-        # Stop the robot
-        self._robot.setMotion(0.0,0.0)
-
-    def add_coordinate(self, robot_goto__x, robot_goto__y):
-        self.__set_WCS_coordinates(robot_goto__x, robot_goto__y)
-
-    def __set_WCS_coordinates(self, wcs_x, wcs_y, wcs_z=0):
+    def add_wcs_coordinate(self, wcs_x, wcs_y, wcs_z=0):
         """
         Sets a single coordinate for the robot to navigate to
         
@@ -45,6 +31,8 @@ class RobotDrive:
         except:
             self._path_matrix = np.array([wcs_x, wcs_y,wcs_z]).reshape(1,3)
         
+        self.__has_navigation = True
+        
     def set_WCS_path(self, path_matrix):
         """
         Sets a series of coordinates along a path for the robot to navigate through
@@ -52,29 +40,39 @@ class RobotDrive:
         Args:
             path_matrix (numpy): a matrix of coordinates [ (x, y, z), (x, y, z), ...]
         """
+
+        # if missing z index, add a column of zeros to the end
+        shape = path_matrix.shape
+        if shape[1] < 3:
+            path_matrix_z = np.zeros((shape[0],shape[1]+1))
+            path_matrix_z[:,:-1] = path_matrix
+            path_matrix = path_matrix_z
         self._path_matrix = path_matrix
 
-    def start_robot(self):
-        self._running = True
+        # Set flag to true
+        self.__has_navigation = True
 
-    def stop_robot(self):
-        self._running = False
-
-    def get_running_status(self):
-        return self._running
+    def has_navigation_point(self):
+        return self.__has_navigation
 
     # Main method to determine and update robot's velocity and heading
     def take_step(self):
-        self._robot_position = self._robot.getPosition()
+        if not self.__has_navigation:
+            print("no navigation point")
+            return
+                
+        self.__robot_position = self.__robot.getPosition()
 
         # Convert robot's position to a numpy array
-        self._robot_position_vector = npf.conv_pos_to_np(self._robot_position)
+        self.__robot_position_vector = npf.conv_pos_to_np(self.__robot_position)
 
         # Get distances from robot to each point
-        self._robot_to_path_distances = npf.compute_distances_vector_matrix(self._robot_position_vector, self._path_matrix)
+        self.__robot_to_path_distances = npf.compute_distances_vector_matrix(self.__robot_position_vector, self._path_matrix)
 
         # Find furthest valid point
         goal_point_index = self._find_goal_point_index()
+
+        print("distance to nav point"+str(goal_point_index)+":",self.__robot_to_path_distances[goal_point_index])
 
         # Get goal point as vector
         self._goal_point_coordinate_world = self._path_matrix[goal_point_index]
@@ -84,11 +82,11 @@ class RobotDrive:
         goal_point_y_WCS = self._goal_point_coordinate_world[1]
 
         # Get robot's global x and y coordinate
-        robot_position_x_WCS = self._robot_position_vector[0]
-        robot_position_y_WCS = self._robot_position_vector[1]
+        robot_position_x_WCS = self.__robot_position_vector[0]
+        robot_position_y_WCS = self.__robot_position_vector[1]
 
         # Get robot's current heading
-        psi = self._robot.getHeading()
+        psi = self.__robot.getHeading()
 
         # Convert goal point in world coordinates to robot's local coordinates
         goal_point_x_RCS =  (goal_point_x_WCS - robot_position_x_WCS) * math.cos(psi) + (goal_point_y_WCS - robot_position_y_WCS) * math.sin(psi)
@@ -110,14 +108,18 @@ class RobotDrive:
             linear_speed = 25
 
         # Update robot speed and turn rate
-        self._robot.setMotion(linear_speed, turn_rate)
+        self.__robot.setMotion(linear_speed, turn_rate/2)
 
         # Shorten the path matrix
         self._path_matrix = self._path_matrix[goal_point_index:,:]
 
-        # Determine if robot should stop
-        if (len(self._path_matrix) == 1 and self._robot_to_path_distances[0] < GOAL_THRESHOLD):
-            self._running = False
+#        print("takestep",self.__robot_to_path_distances[0])
+        
+        # Determine if robot has anywhere to go
+        if (len(self._path_matrix) == 1 and self.__robot_to_path_distances[0] < GOAL_THRESHOLD):
+            self.__has_navigation = False
+            self._path_matrix = None
+            self.__robot.setMotion(0, 0)
 
     def _find_goal_point_index(self):
 
@@ -127,7 +129,7 @@ class RobotDrive:
         # iterate through points along the path, from first to last
         # if a point is <= look ahead distance, choose as next point
         # if a point is > look ahead distance break out of loop and return the index
-        for i, j in enumerate(self._robot_to_path_distances):
+        for i, j in enumerate(self.__robot_to_path_distances):
             if j <= LOOK_AHEAD_DISTANCE:
                 goal_point_index = i
             else:
