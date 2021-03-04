@@ -59,11 +59,11 @@ class ShowMap(object):
         #saveMap(self.__fig, self.mapName + '000')
         self.start_time = time.time()
 
-    def set_frontier(self, frontier_row, frontier_col):
+    def set_frontier(self, frontier_col, frontier_row):
         self.__frontier_row = frontier_row
         self.__frontier_col = frontier_col
 
-    def updateMap(self, grid, maxValue, robot_row, robot_col):  # TODO add frontiers parameter
+    def updateMap(self, grid, maxValue, robot_col, robot_row):  # TODO add frontiers parameter
         """
         Creates a new BufferedImage from a grid with integer values between 0 - maxVal,
         where 0 is black and maxVal is white, with a grey scale in between. Negative values are shown as gray.
@@ -104,7 +104,7 @@ class ShowMap(object):
         self.__ax.plot(robot_row, robot_col, 'rs', markersize=self.__robot_size)
 
         if self.__frontier_row is not None and self.__frontier_col is not None:
-            self.__ax.plot(self.__frontier_row,self.__frontier_col, 'gs', markersize=self.__robot_size)
+            self.__ax.plot(self.__frontier_row, self.__frontier_col, 'gs', markersize=self.__robot_size)
 
         # draw new figure
         self.__fig.canvas.draw()

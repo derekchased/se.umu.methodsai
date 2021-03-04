@@ -11,7 +11,7 @@ class WavefrontPlanner:
     def __init__(self, robot: Robot, occupancy_grid: OccupancyGrid, explorer:Explorer):
         self.__robot = robot
         self.__occupancy_grid = occupancy_grid
-        self.__rows, self.__cols = self.__occupancy_grid.get_size()
+        self.__cols, self.__rows = self.__occupancy_grid.get_size()
         self.__explorer = explorer
         self.__wave_grid = []
         
@@ -25,6 +25,9 @@ class WavefrontPlanner:
         robot_x_grid, robot_y_grid = self.__occupancy_grid.pos_to_grid(position_wcs['X'], position_wcs['Y'])
         robot_x_grid = int(robot_x_grid)
         robot_y_grid = int(robot_y_grid)
+
+        print(self.__occupancy_grid.get_size())
+        print(self.__occupancy_grid.get_grid().shape)
 
         # Init "wave" grid to zeros        
         self.__wave_grid = np.zeros(self.__occupancy_grid.get_grid().shape)
@@ -50,7 +53,7 @@ class WavefrontPlanner:
                 updated_neighbors += self.__update_neighbors(x, y, current_distance)
 
             # If no neighbors were updated then??
-            if len(updated_neighbors) == 0 :
+            if len(updated_neighbors) == 0:
                 print("len(updated_neighbors) == 0")
                 expand_wave = False
                 assert error

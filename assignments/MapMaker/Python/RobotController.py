@@ -40,7 +40,7 @@ class RobotController:
     def main(self):
         self.__loop_running = True
         self.__take_a_scan = True
-        self.__determine_frontiers = True
+        self.__determine_frontiers = False
         self.main_loop()
 
     def main_loop(self):
@@ -48,8 +48,8 @@ class RobotController:
         while self.__loop_running:
             
             # Force take a scan every 10 cycles
-            if self.CYCLES%10==0:
-               self.__take_a_scan = True 
+            if self.CYCLES % 10 == 0:
+                self.__take_a_scan = True
 
             # Update map if scan flag is true
             if self.__take_a_scan:

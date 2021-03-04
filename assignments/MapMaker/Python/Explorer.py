@@ -110,7 +110,7 @@ class Explorer:
             self.__set_mark(mark_grid, p, Mark.MAP_CLOSE_LIST)
 
         if len(frontiers) == 0:
-            return None
+            return []
 
         frontier_medians = []
 
