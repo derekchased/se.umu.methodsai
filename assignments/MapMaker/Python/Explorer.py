@@ -41,7 +41,7 @@ class Explorer:
 
         # Calculate the robot's position on the grid.
         robot_x_grid, robot_y_grid = self.__grid.pos_to_grid(position_wcs['X'], position_wcs['Y'])
-        robot_coords = (int(robot_x_grid), int(robot_y_grid))
+        robot_coords = (int(robot_y_grid), int(robot_x_grid))
 
         grid = self.__grid.get_grid()
         mark_grid = np.full(grid.shape, Mark.NONE)
@@ -120,7 +120,7 @@ class Explorer:
         frontier_medians = np.array(frontier_medians)
 
         # Sort based on distance to robot
-        euclid_distances = np.apply_along_axis(self.__distance_sq, 1, frontier_medians, (robot_x_grid, robot_y_grid))
+        euclid_distances = np.apply_along_axis(self.__distance_sq, 1, frontier_medians, (robot_y_grid, robot_x_grid))
         order = np.argsort(euclid_distances)
         sorted_frontier_medians = frontier_medians[order]
 

@@ -26,9 +26,6 @@ class WavefrontPlanner:
         robot_x_grid = int(robot_x_grid)
         robot_y_grid = int(robot_y_grid)
 
-        print(self.__occupancy_grid.get_size())
-        print(self.__occupancy_grid.get_grid().shape)
-
         # Init "wave" grid to zeros        
         self.__wave_grid = np.zeros(self.__occupancy_grid.get_grid().shape)
 
