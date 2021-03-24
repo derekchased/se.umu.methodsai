@@ -30,7 +30,7 @@ class RobotController:
 
         self.__local_map = OccupancyGrid(x_min, y_min, self.MAP_GRID_SIZE, width_grid, height_grid)
         self.__laser = LaserSensorModel(self.__robot, self.__local_map)
-        self.__show_map = ShowMap(width_grid, height_grid, show_gui)
+        self.__show_map = ShowMap(height_grid, width_grid, show_gui)
         self.__explorer = Explorer(self.__robot, self.__local_map)
         self.__path_planner = WavefrontPlanner(self.__robot, self.__local_map, self.__explorer)
         self.__loop_running = False
@@ -67,7 +67,7 @@ class RobotController:
                 self.__show_map.updateMap(self.__local_map.get_grid(), 1, robot_x_grid, robot_y_grid)
 
                 self.__show_map.close()
-                
+
                 self.__take_a_scan = False
 
             # Update frontier nodes
