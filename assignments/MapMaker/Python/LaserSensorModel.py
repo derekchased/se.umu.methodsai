@@ -35,7 +35,7 @@ class LaserSensorModel:
         position_wcs = self.__robot.getPosition()
 
         # Calculate the robot's position on the grid.
-        robot_x_grid, robot_y_grid = self.__grid.pos_to_grid(position_wcs['X'], position_wcs['Y'])
+        robot_x_grid, robot_y_grid = self.__grid.wcs_to_grid(position_wcs['X'], position_wcs['Y'])
         
         # Get the distances of all laser beams in meters
         beam_distances_wcs = np.array(self.__robot.getLaser()['Echoes'])

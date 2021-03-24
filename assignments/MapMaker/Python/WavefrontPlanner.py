@@ -22,7 +22,7 @@ class WavefrontPlanner:
         position_wcs = self.__robot.getPosition()
 
         # Calculate the robot's position on the grid.
-        robot_x_grid, robot_y_grid = self.__occupancy_grid.pos_to_grid(position_wcs['X'], position_wcs['Y'])
+        robot_x_grid, robot_y_grid = self.__occupancy_grid.wcs_to_grid(position_wcs['X'], position_wcs['Y'])
         robot_x_grid = int(robot_x_grid)
         robot_y_grid = int(robot_y_grid)
 

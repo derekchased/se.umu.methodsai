@@ -26,9 +26,9 @@ class UnexpectedResponse(Exception): pass
 
 
 class Robot:
-    def __init__(self, url="http://localhost:50000"):
+    def __init__(self, url="127.0.0.1:50000"):
         # HTTPConnection does not want to have http:// in the address apparently, so let's remove it:
-        mrds_url = url[len("http://"):]
+        mrds_url = "127.0.0.1:50000"
         self.url = mrds_url
 
     def getHeading(self):
@@ -50,7 +50,7 @@ class Robot:
         command to the MRDS server
         speed is given in m/s, turn rate in radians/s
         """
-        mrds = http.client.HTTPConnection(self.url, timeout=1)
+        mrds = http.client.HTTPConnection(self.url, timeout=2)
         params = json.dumps({'TargetLinearSpeed': linearSpeed, 'TargetAngularSpeed': turnrate})
         try:
             mrds.request('POST', '/lokarria/differentialdrive', params, HEADERS)            
@@ -68,7 +68,7 @@ class Robot:
 
     def getLaser(self):
         """Requests the current laser scan from the MRDS server and parses it into a dict"""
-        mrds = http.client.HTTPConnection(self.url, timeout=1)
+        mrds = http.client.HTTPConnection(self.url, timeout=2)
         try:
             mrds.request('GET', '/lokarria/laser/echoes')
         except:
@@ -85,7 +85,7 @@ class Robot:
 
     def getLaserAngles(self):
         """Requests the current laser properties from the MRDS server and parses it into a dict"""
-        mrds = http.client.HTTPConnection(self.url, timeout=1)
+        mrds = http.client.HTTPConnection(self.url, timeout=2)
         try:
             mrds.request('GET', '/lokarria/laser/properties')
         except:
@@ -110,7 +110,7 @@ class Robot:
     # Local methods, not usually used outside of this class    
     def _getPose(self):
         """Reads the current position and orientation from the MRDS"""
-        mrds = http.client.HTTPConnection(self.url, timeout=1)
+        mrds = http.client.HTTPConnection(self.url, timeout=2)
         try:
             mrds.request('GET', '/lokarria/localization')
         except:

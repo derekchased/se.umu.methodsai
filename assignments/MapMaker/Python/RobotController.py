@@ -54,9 +54,20 @@ class RobotController:
             # Update map if scan flag is true
             if self.__take_a_scan:
                 self.__robot.setMotion(0.0, 0.0)
-                self.take_scan()
-                self.update_map()
+        
+                self.__laser.update_grid()
+
+                # Get robot XY position
+                position_wcs = self.__robot.getPosition()
+
+                # Calculate the robot's position on the grid.
+                robot_x_grid, robot_y_grid = self.__local_map.wcs_to_grid(position_wcs['X'], position_wcs['Y'])
+
+                # Update map with latest grid values and the robot's position
+                self.__show_map.updateMap(self.__local_map.get_grid(), 1, robot_x_grid, robot_y_grid)
+
                 self.__show_map.close()
+                
                 self.__take_a_scan = False
 
             # Update frontier nodes
@@ -80,7 +91,7 @@ class RobotController:
                     path_grid = np.array(self.__path_planner.get_grid_path(frontier_x_grid, frontier_y_grid))
 
                     # Convert path (grid) to WCS
-                    path_x_wcs, path_y_wcs = self.__local_map.grid_to_pos(path_grid[:,0],path_grid[:,1])
+                    path_x_wcs, path_y_wcs = self.__local_map.grid_to_wcs(path_grid[:,0],path_grid[:,1])
                     path_wcs = np.zeros((len(path_x_wcs), 2))
                     path_wcs[:,0] = path_x_wcs
                     path_wcs[:,1] = path_y_wcs
@@ -111,24 +122,7 @@ class RobotController:
             time.sleep(.1)
 
         # If broken out of the loop then end the program
-        self.end_program()
-
-    def end_program(self):
         self.__show_map.close()
-
-    def take_scan(self):
-        self.__laser.update_grid()
-
-    def update_map(self):
-        # Get robot XY position
-        position_wcs = self.__robot.getPosition()
-
-        # Calculate the robot's position on the grid.
-        robot_x_grid, robot_y_grid = self.__local_map.pos_to_grid(position_wcs['X'], position_wcs['Y'])
-
-        # Update map with latest grid values and the robot's position
-        self.__show_map.updateMap(self.__local_map.get_grid(), 1, robot_x_grid, robot_y_grid)
-
 
 
 if __name__ == "__main__":

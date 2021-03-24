@@ -4,3 +4,5 @@
 
 # Pycharm config folder
 .idea/
+
+*.png

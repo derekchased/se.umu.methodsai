@@ -34,7 +34,7 @@ class OccupancyGrid:
 
         np.putmask(self.__grid, update_mask, occupied_term / (occupied_term + p_empty * prior_empty))
 
-    def pos_to_grid(self, x_wcs, y_wcs):
+    def wcs_to_grid(self, x_wcs, y_wcs):
         """
         Converts an (x,y) position in the world to a (row,col) coordinate in the grid
         :param x_wcs: x-position in the world
@@ -45,7 +45,7 @@ class OccupancyGrid:
         row = ((y_wcs - self.y_anchor) / self.cell_size)
         return row, col
 
-    def grid_to_pos(self, row_grid, col_grid):
+    def grid_to_wcs(self, row_grid, col_grid):
         """
         Converts a (row, col) position in the grid to a (x,y) coordinate in world
         :param row_grid: row index in the grid

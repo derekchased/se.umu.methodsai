@@ -93,7 +93,7 @@ def create_map(robot):
 
     # Position of the robot in the grid (red dot)
     curr_pos = robot.getPosition()
-    robot_coord = pos_to_grid(curr_pos['X'], curr_pos['Y'], min_x, max_y, cell_size)
+    robot_coord = wcs_to_grid(curr_pos['X'], curr_pos['Y'], min_x, max_y, cell_size)
     robot_row = robot_coord[0]
     robot_col = robot_coord[1]
 
@@ -106,14 +106,14 @@ def create_map(robot):
     # Let's update the map again. You should update the grid and the position
     # In your solution you should not sleep of course, but update continuously
     curr_pos = robot.getPosition()
-    robot_coord = pos_to_grid(curr_pos['X'], curr_pos['Y'], min_x, max_y, cell_size)
+    robot_coord = wcs_to_grid(curr_pos['X'], curr_pos['Y'], min_x, max_y, cell_size)
     robot_row = robot_coord[0]
     robot_col = robot_coord[1]
     map.updateMap(grid, maxVal, robot_row, robot_col)
     print("Map updated again")
 
 
-def pos_to_grid(x, y, xmin, ymax, cellsize):
+def wcs_to_grid(x, y, xmin, ymax, cellsize):
     """
     Converts an (x,y) positon to a (row,col) coordinate in the grid
     :param x: x-position
