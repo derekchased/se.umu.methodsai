@@ -32,7 +32,7 @@ class ShowMap(object):
         self.mapNr = 1
         self.first = True
         self.__robot_size = 6
-        self.__size = (gridWidth, gridHeight)
+        self.__size = (gridHeight, gridWidth)
 
         # create a grayscale image
         data = np.ones(shape=self.__size)
