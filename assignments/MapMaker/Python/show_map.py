@@ -78,8 +78,10 @@ class ShowMap(object):
         # convert grid to a numpy matrix
         grid = np.matrix(grid)
         # mapping the grid to an Image
-        for col in range(0, self.__size[0]):
-            for row in range(0, self.__size[1]):
+
+
+        for col in range(self.__size[1]):
+            for row in range(self.__size[0]):
                 value = grid[row, col]
                 # if value is <0 draw a gray pixel else mapping the value between 0 - 255
                 # where 0 is black and 255 is white
@@ -101,7 +103,7 @@ class ShowMap(object):
         self.__ax.set_yticks([])
 
         # plot the robot pose
-        self.__ax.plot(robot_row, robot_col, 'rs', markersize=self.__robot_size)
+        self.__ax.plot(robot_col, robot_row, 'rs', markersize=self.__robot_size)
 
         if self.__frontier_row is not None and self.__frontier_col is not None:
             self.__ax.plot(self.__frontier_row, self.__frontier_col, 'gs', markersize=self.__robot_size)

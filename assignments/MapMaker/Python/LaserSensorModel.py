@@ -35,20 +35,25 @@ class LaserSensorModel:
         position_wcs = self.__robot.getPosition()
 
         # Calculate the robot's position on the grid.
-        robot_x_grid, robot_y_grid = self.__grid.wcs_to_grid(position_wcs['X'], position_wcs['Y'])
+        x_rcs, y_rcs = self.__grid.wcs_to_grid(position_wcs['X'], position_wcs['Y'])
         
         # Get the distances of all laser beams in meters
         beam_distances_wcs = np.array(self.__robot.getLaser()['Echoes'])
 
-        rows, cols = self.__grid.get_size()
+        rows, cols = self.__grid.get_size() # height, width
 
+        # Check this regarding ogrid, 
+        # https://towardsdatascience.com/the-little-known-ogrid-function-in-numpy-19ead3bdae40
+        # "One important note is the direction of the axes in Numpy. Contrary to how we
+        # are used to seeing x and y axes, the axes in a Numpy image are as below:" 
+        # -> https://miro.medium.com/max/303/1*GMUpEYbk6PX01RF7Fs2wNQ.png
         ys, xs = np.ogrid[0:rows, 0:cols]
 
         # A grid where the value of each pixel is the distance between it and the robot
-        distances = self.distance_2d(robot_x_grid, robot_y_grid, xs, ys)
+        distances = self.distance_2d(x_rcs, y_rcs, xs, ys)
 
         # A grid where the value of each pixel is the angle between it and the robot's heading.
-        angles = self.norm_angle(self.angle_2d(robot_x_grid, robot_y_grid, xs, ys) - heading)
+        angles = self.norm_angle(self.angle_2d(x_rcs, y_rcs, xs, ys) - heading)
 
         # A grid where the value of each pixel is the angle in integer degrees
         # between it and the heading of the robot from (-180 to 180)

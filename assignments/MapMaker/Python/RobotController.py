@@ -28,7 +28,7 @@ class RobotController:
         width_grid = math.ceil(width_wcs / self.MAP_GRID_SIZE)
         height_grid = math.ceil(height_wcs / self.MAP_GRID_SIZE)
 
-        self.__local_map = OccupancyGrid(x_min, y_min, self.MAP_GRID_SIZE, width_grid, height_grid)
+        self.__local_map = OccupancyGrid(x_min, y_min, self.MAP_GRID_SIZE, height_grid, width_grid)
         self.__laser = LaserSensorModel(self.__robot, self.__local_map)
         self.__show_map = ShowMap(height_grid, width_grid, show_gui)
         self.__explorer = Explorer(self.__robot, self.__local_map)
@@ -73,8 +73,9 @@ class RobotController:
             # Update frontier nodes
             if self.__determine_frontiers:
 
-                frontiers = self.__explorer.get_frontiers()
+                frontiers = []#self.__explorer.get_frontiers()
 
+                
                 if len(frontiers) > 0:
 
                     # TODO, frontier should be some minimum distance away from the robot
@@ -102,9 +103,25 @@ class RobotController:
                     # Close flag
                     self.__determine_frontiers = False
 
-                else:
+                #else:
                     ## TODO what to do when no frontier nodes are returned
-                    assert error
+                    #assert error
+                #frontiers = []#self.__explorer.get_frontiers()
+
+                # bottom right
+                #self.__robot_drive.add_wcs_coordinate(*self.__local_map.grid_to_wcs(150, 150))
+
+                # ? maybe bttom left
+                #self.__robot_drive.add_wcs_coordinate(*self.__local_map.grid_to_wcs(0, 150))
+
+                # top right
+                #self.__robot_drive.add_wcs_coordinate(*self.__local_map.grid_to_wcs(150, 0))
+
+                # top left
+                self.__robot_drive.add_wcs_coordinate(*self.__local_map.grid_to_wcs(0, 0))
+                    
+                # Close flag
+                self.__determine_frontiers = False
 
             # If robot has a point to navigate to, take next step
             if self.__robot_drive.has_navigation_point():

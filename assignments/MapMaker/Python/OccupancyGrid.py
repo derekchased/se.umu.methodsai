@@ -7,8 +7,8 @@ class OccupancyGrid:
         self.x_anchor = x_anchor
         self.y_anchor = y_anchor
         self.cell_size = cell_size
-        self.row_count = row_count
-        self.col_count = col_count
+        self.row_count = row_count # height
+        self.col_count = col_count # width
 
         # create grid that is uncertain about every location. 1 = occupied, 0 = empty
         self.__grid = np.ones(shape=(row_count, col_count)) * 0.5
