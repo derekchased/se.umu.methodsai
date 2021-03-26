@@ -19,8 +19,8 @@ class Explorer:
     # Upper and lower bound on cell value for determining
     # whether a cell on the map is 'unknown' for determining frontiers
     # See also: __is_frontier_point()
-    UNKNOWN_UPPER_BOUND = 0.55
-    UNKNOWN_LOWER_BOUND = 0.45
+    UNKNOWN_UPPER_BOUND = 0.65
+    UNKNOWN_LOWER_BOUND = 0.35
 
     def __init__(self, robot: Robot, grid: OccupancyGrid):
         self.__robot = robot

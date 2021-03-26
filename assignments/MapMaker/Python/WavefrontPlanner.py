@@ -6,7 +6,7 @@ import numpy as np
 
 class WavefrontPlanner:
 
-    OPEN_CERTAINTY = .54
+    OPEN_CERTAINTY = .45
 
     def __init__(self, robot: Robot, occupancy_grid: OccupancyGrid, explorer:Explorer):
         self.__robot = robot

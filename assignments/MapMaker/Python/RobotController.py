@@ -40,7 +40,7 @@ class RobotController:
     def main(self):
         self.__loop_running = True
         self.__take_a_scan = True
-        self.__determine_frontiers = False
+        self.__determine_frontiers = True
 
         try:
             self.main_loop()
@@ -57,8 +57,6 @@ class RobotController:
 
             # Update map if scan flag is true
             if self.__take_a_scan:
-                self.__robot.setMotion(0.0, 0.0)
-
                 # Get robot XY position
                 position_wcs = self.__robot.getPosition()
                 self.__laser.update_grid(position_wcs['X'], position_wcs['Y'])
@@ -76,15 +74,21 @@ class RobotController:
             # Update frontier nodes
             if self.__determine_frontiers:
 
-                frontiers = []  # self.__explorer.get_frontiers()
+                frontiers = self.__explorer.get_frontiers()
+                print(len(frontiers))
 
                 if len(frontiers) > 0:
                     # TODO, frontier should be some minimum distance away from the robot
 
                     # TODO, which node to select?
-                    #  -> for now, take furthest node
-                    frontier_x_grid = int(frontiers[-1][0])
-                    frontier_y_grid = int(frontiers[-1][1])
+                    
+                    # #  -> for now, take furthest node
+                    # frontier_x_grid = int(frontiers[-1][0])
+                    # frontier_y_grid = int(frontiers[-1][1])
+
+                    #  take closest node
+                    frontier_x_grid = int(frontiers[0][0])
+                    frontier_y_grid = int(frontiers[0][1])
 
                     # add/update green dot on the image
                     self.__show_map.set_frontier(frontier_x_grid, frontier_y_grid)
@@ -104,25 +108,9 @@ class RobotController:
                     # Close flag
                     self.__determine_frontiers = False
 
-                # else:
-                ## TODO what to do when no frontier nodes are returned
-                # assert error
-                # frontiers = []#self.__explorer.get_frontiers()
-
-                # bottom right
-                # self.__robot_drive.add_wcs_coordinate(*self.__local_map.grid_to_wcs(150, 150))
-
-                # ? maybe bttom left
-                # self.__robot_drive.add_wcs_coordinate(*self.__local_map.grid_to_wcs(0, 150))
-
-                # top right
-                # self.__robot_drive.add_wcs_coordinate(*self.__local_map.grid_to_wcs(150, 0))
-
-                # top left
-                self.__robot_drive.add_wcs_coordinate(*self.__local_map.grid_to_wcs(0, 0))
-
-                # Close flag
-                self.__determine_frontiers = False
+                else:
+                    ## TODO what to do when no frontier nodes are returned
+                    assert error
 
             # If robot has a point to navigate to, take next step
             if self.__robot_drive.has_navigation_point():
@@ -161,8 +149,8 @@ if __name__ == "__main__":
 
         url = "http://localhost:50000"
         show_gui = False
-        x_min = y_min = -20
-        x_max = y_max = 20
+        x_min = y_min = -30
+        x_max = y_max = 30
 
         # TODO: exit(1)
 
