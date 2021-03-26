@@ -27,20 +27,17 @@ class LaserSensorModel:
         self.__beam_max_grid_distance = (self.BEAM_MAX_DISTANCE / occupancy_grid.cell_size)
         self.__obstacle_depth_grid = self.OBSTACLE_DEPTH_WCS / occupancy_grid.cell_size
 
-    def update_grid(self):
+    def update_grid(self, robot_x_wcs, robot_y_wcs):
         # Get robot heading angle.
         heading = self.__robot.getHeading()
 
-        # Get robot XY position
-        position_wcs = self.__robot.getPosition()
-
         # Calculate the robot's position on the grid.
-        x_rcs, y_rcs = self.__grid.wcs_to_grid(position_wcs['X'], position_wcs['Y'])
+        robot_col, robot_row = self.__grid.wcs_to_grid(robot_x_wcs, robot_y_wcs)
         
         # Get the distances of all laser beams in meters
         beam_distances_wcs = np.array(self.__robot.getLaser()['Echoes'])
 
-        rows, cols = self.__grid.get_size() # height, width
+        rows, cols = self.__grid.get_size()  # height, width
 
         # Check this regarding ogrid, 
         # https://towardsdatascience.com/the-little-known-ogrid-function-in-numpy-19ead3bdae40
@@ -50,10 +47,10 @@ class LaserSensorModel:
         ys, xs = np.ogrid[0:rows, 0:cols]
 
         # A grid where the value of each pixel is the distance between it and the robot
-        distances = self.distance_2d(x_rcs, y_rcs, xs, ys)
+        distances = self.distance_2d(robot_row, robot_col, xs, ys)
 
         # A grid where the value of each pixel is the angle between it and the robot's heading.
-        angles = self.norm_angle(self.angle_2d(x_rcs, y_rcs, xs, ys) - heading)
+        angles = self.norm_angle(self.angle_2d(robot_row, robot_col, xs, ys) - heading)
 
         # A grid where the value of each pixel is the angle in integer degrees
         # between it and the heading of the robot from (-180 to 180)
@@ -86,16 +83,18 @@ class LaserSensorModel:
         region_III_mask = ~(region_II_mask | region_I_mask)
 
         # The distance term (R - r)/R for the probability calculation as specified in lecture 7 slide 13 and 14
-        distance_term = self.distance_term(distances, np.amax(distances))
+        distance_term = self.distance_term(distances, np.amax(distances) * 2)
         # The angle term (Beta - alpha)/Beta for the probability calculation as specified in lecture 7 slide 13 and 14
         angle_term = self.angle_term(beam_angles, np.amax(beam_angles) * 2)
 
         # The grid that we want to return
         result = np.ones(shape=(rows, cols)) * 0.5
 
+        values = (distance_term + angle_term) / 2
+
         # Updating each pixel in region I and region II as specified in the slides of lecture 7
-        np.putmask(result, region_I_mask, (distance_term + angle_term) / 2 * self.PROB_MAX)
-        np.putmask(result, region_II_mask, 1 - (distance_term + angle_term) / 2)
+        np.putmask(result, region_I_mask, values * self.PROB_MAX)
+        np.putmask(result, region_II_mask, 1 - values)
 
         #self.__grid.set_grid(region_III_mask)
         self.__grid.update_grid(result, ~region_III_mask)
