@@ -1,6 +1,7 @@
 from collections import deque
 from enum import Enum
 
+import NPFunctions
 from OccupancyGrid import OccupancyGrid
 from robot import Robot
 import numpy as np
@@ -115,13 +116,16 @@ class Explorer:
 
         frontier_medians = []
 
+        # Only select frontier medians that are in open space. This is because the wavefront planner cannot deal
+        # with unknown areas.
         for frontier in frontiers:
-            frontier_medians.append(np.median(frontier, axis=0))
+            median = np.median(frontier, axis=0)
+            frontier_medians.append(median)
 
         frontier_medians = np.array(frontier_medians)
 
         # Sort based on distance to robot
-        euclid_distances = np.apply_along_axis(self.__distance_sq, 1, frontier_medians, (robot_row, robot_col))
+        euclid_distances = np.apply_along_axis(NPFunctions.distance_sq, 1, frontier_medians, initial_coords)
         order = np.argsort(euclid_distances)
         sorted_frontier_medians = frontier_medians[order]
 
@@ -135,36 +139,21 @@ class Explorer:
         col = robot_coords[0]
         row = robot_coords[1]
 
-        adjusted = False
+        # Move the starting point to be 3 grid cells in front of the robot. Grid cell directly under the robot
+        # could be unknown.
+        col = col + (3 * np.cos(heading))
+        row = row + (3 * np.sin(heading))
 
         if col < 0:
             col = 0
-            adjusted = True
         if col > grid_shape[0] - 1:
             col = grid_shape[0] - 1
-            adjusted = True
         if row < 0:
             row = 0
-            adjusted = True
         if row > grid_shape[1] - 1:
             row = grid_shape[1] - 1
-            adjusted = True
-
-        print(heading)
-
-        if not adjusted:
-            # Move the starting point to be 1 grid cell in front of the robot. Grid cell directly under the robot
-            # could be unknown.
-            col = col + np.cos(heading)
-            row = row + np.sin(heading)
 
         return int(col), int(row)
-
-    def __distance_sq(self, point1, point2):
-        dx = point1[0] - point2[0]
-        dy = point1[0] - point2[0]
-
-        return dx**2 + dy**2
 
     def __get_mark(self, mark_grid, position):
         return mark_grid[position[0]][position[1]]
@@ -193,7 +182,7 @@ class Explorer:
 
     def __get_neighbours(self, position):
         """
-        Return all neighbours of a position within grid bounds (4-connected)
+        Return all neighbours of a position within grid bounds (8-connected)
         """
         x = position[0]
         y = position[1]
@@ -201,13 +190,26 @@ class Explorer:
 
         neighbours = []
 
-        if x > 0:
+        left = x > 0
+        right = x + 1 < max_x
+        top = y > 0
+        bottom = y + 1 < max_y
+
+        if left:
             neighbours.append((x - 1, y))
-        if y > 0:
-            neighbours.append((x, y - 1))
-        if x + 1 < max_x:
+        if right:
             neighbours.append((x + 1, y))
-        if y + 1 < max_y:
+        if top:
+            neighbours.append((x, y - 1))
+        if bottom:
             neighbours.append((x, y + 1))
+        if top and left:
+            neighbours.append((x - 1, y - 1))
+        if top and right:
+            neighbours.append((x + 1, y - 1))
+        if bottom and left:
+            neighbours.append((x - 1, y + 1))
+        if bottom and right:
+            neighbours.append((x + 1, y + 1))
 
         return neighbours

@@ -1,4 +1,4 @@
-
+import NPFunctions
 from robot import Robot
 from OccupancyGrid import OccupancyGrid
 from Explorer import Explorer
@@ -6,14 +6,14 @@ import numpy as np
 
 class WavefrontPlanner:
 
-    OPEN_CERTAINTY = Explorer.UNKNOWN_LOWER_BOUND
+    OPEN_CERTAINTY = Explorer.UNKNOWN_UPPER_BOUND
 
     def __init__(self, robot: Robot, occupancy_grid: OccupancyGrid, explorer:Explorer):
         self.__robot = robot
         self.__occupancy_grid = occupancy_grid
-        self.__cols, self.__rows = self.__occupancy_grid.get_size()
         self.__explorer = explorer
-        self.__wave_grid = []
+        self.__wave_grid = np.zeros(occupancy_grid.get_size())
+
 
     def get_grid_path(self, frontier_x_grid: int, frontier_y_grid: int):
         # Get robot XY position
@@ -24,8 +24,8 @@ class WavefrontPlanner:
         robot_x_grid = int(robot_x_grid)
         robot_y_grid = int(robot_y_grid)
 
-        # Init "wave" grid to zeros        
-        self.__wave_grid = np.zeros(self.__occupancy_grid.get_size())
+        # Init "wave" grid to zeros
+        self.__wave_grid = np.zeros(self.__occupancy_grid.get_grid().shape)
 
         # Set the robot's position on the grid to 1
         current_distance = 1
@@ -35,7 +35,7 @@ class WavefrontPlanner:
         
         while expand_wave:
             # get all x, y coordinates of elements with value == current_distance
-            current_wave_coordinates = np.transpose((self.__wave_grid==current_distance).nonzero())
+            current_wave_coordinates = np.transpose((self.__wave_grid == current_distance).nonzero())
 
             # increment distance
             current_distance += 1
@@ -51,12 +51,11 @@ class WavefrontPlanner:
             if len(updated_neighbors) == 0:
                 print("len(updated_neighbors) == 0")
                 expand_wave = False
-                assert error
+               #assert error
             else:
                 goal_point_value = self.__wave_grid[frontier_x_grid, frontier_y_grid]
-                if goal_point_value < 0:
-                    expand_wave = False
-                elif goal_point_value > 0:
+
+                if goal_point_value != 0:
                     expand_wave = False
 
         if goal_point_value < 0:
@@ -70,84 +69,75 @@ class WavefrontPlanner:
             print("goal_point_value == 0 (not checked yet)", current_distance)
             assert error
         else:
-            # TODO- goal point reached
-            back_list = self.__backtrack_path(int(frontier_x_grid), int(frontier_y_grid))
-            #print(goal_point_value, "path", back_list)
-            return back_list
+            return self.__backtrack_path(frontier_x_grid, frontier_y_grid)
 
     def __update_neighbors(self, x, y, distance):
-        # keep list of neighbors that get updated
-        updated_neighbors = []
+        open_neighbours = []
+        neighbours = self.__get_neighbours(x, y)
 
-        #up
-        if y-1 >= 0 and self.__wave_grid[x, y-1] == 0:
-            if self.__occupancy_grid.get_grid()[x, y-1] < self.OPEN_CERTAINTY:
-                self.__wave_grid[x, y-1] = distance
-                updated_neighbors.append((x, y-1))
-            else:
-                self.__wave_grid[x, y-1] = -1
+        for neighbour in neighbours:
+            if self.__wave_grid[neighbour[0], neighbour[1]] != 0:
+                # Skip coordinates that already are assigned
+                continue
 
-        #left
-        if x-1 >= 0 and self.__wave_grid[x-1, y] == 0:
-            if self.__occupancy_grid.get_grid()[x-1, y] < self.OPEN_CERTAINTY:
-                self.__wave_grid[x-1, y] = distance
-                updated_neighbors.append((x-1, y))
-            else:
-                self.__wave_grid[x-1, y] = -1
-        #right
-        if x+1 < self.__cols and self.__wave_grid[x+1, y] == 0:
-            if self.__occupancy_grid.get_grid()[x+1, y] < self.OPEN_CERTAINTY:
-                self.__wave_grid[x+1, y] = distance
-                updated_neighbors.append((x+1, y))
-            else: 
-                self.__wave_grid[x+1, y] = -1
+            neighbour_value = self.__occupancy_grid.get_grid()[neighbour[0], neighbour[1]]
+            neighbour_distance = -1
 
-        #down
-        if y+1 < self.__rows and self.__wave_grid[x, y+1] == 0:
-            if self.__occupancy_grid.get_grid()[x, y+1] < self.OPEN_CERTAINTY:
-                updated_neighbors.append((x, y+1))
-                self.__wave_grid[x, y+1] = distance
-            else:
-                self.__wave_grid[x, y+1] = -1
+            if neighbour_value < self.OPEN_CERTAINTY:
+                neighbour_distance = distance
+                open_neighbours.append(neighbour)
 
-        return updated_neighbors
+            self.__wave_grid[neighbour[0], neighbour[1]] = neighbour_distance
+
+        return open_neighbours
+
+    def __get_neighbours(self, x, y):
+        """
+        Return all neighbours of a position within grid bounds (4-connected)
+        """
+        max_x, max_y = self.__occupancy_grid.get_size()
+
+        neighbours = []
+
+        left = x > 0
+        right = x + 1 < max_x
+        top = y > 0
+        bottom = y + 1 < max_y
+
+        if left:
+            neighbours.append((x - 1, y))
+        if right:
+            neighbours.append((x + 1, y))
+        if top:
+            neighbours.append((x, y - 1))
+        if bottom:
+            neighbours.append((x, y + 1))
+
+        return neighbours
 
     def __backtrack_path(self, x, y):
-        current_goal_point_value = self.__wave_grid[x, y]
+        current_distance = self.__wave_grid[x, y]
 
-        if current_goal_point_value == 1:
-            # append the robot's starting position
+        if current_distance == 1:
+            # reached robot position!
             return [[x, y]]
-        elif current_goal_point_value < 1:
-            # TODO some error
-            print("error current_goal_point_value < 1")
+        elif current_distance < 1:
+            print("error current_distance < 1")
             assert error
-            return []
-        elif current_goal_point_value > 1:
-            next_value = current_goal_point_value-1
+        elif current_distance > 1:
+            next_distance = current_distance - 1
 
-            # up
-            if y-1 >= 0 and self.__wave_grid[x, y-1] == next_value:
-                next_x = x
-                next_y = y-1
+            neighbours = self.__get_neighbours(x, y)
 
-            #left
-            elif x-1 >= 0 and self.__wave_grid[x-1, y] == next_value:
-                next_x = x-1
-                next_y = y
+            shortest_neighbour = None
 
-            #right
-            elif x+1 < self.__cols and self.__wave_grid[x+1, y] == next_value:
-                next_x = x+1
-                next_y = y
+            for neighbour in neighbours:
+                value = self.__wave_grid[neighbour[0], neighbour[1]]
 
-            #down
-            elif y+1 < self.__rows and self.__wave_grid[x, y+1] == next_value:
-                next_x = x
-                next_y = y+1
+                if value == next_distance:
+                    shortest_neighbour = neighbour
 
-
-            ret_list = self.__backtrack_path(next_x, next_y)
-            ret_list.append([x,y])
+            path_from_neighbour = self.__backtrack_path(shortest_neighbour[0], shortest_neighbour[1])
+            path_from_neighbour.append([x, y])
             # return the recurive call plus append these coords to list
-            return ret_list
+            return path_from_neighbour

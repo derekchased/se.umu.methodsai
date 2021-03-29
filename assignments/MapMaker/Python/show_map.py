@@ -54,14 +54,19 @@ class ShowMap(object):
 
         plt.show(block=False)
         self.__fig.canvas.draw()
-        self.__frontier_row = None
-        self.__frontier_col = None
-        #saveMap(self.__fig, self.mapName + '000')
+        self.__frontiers = []
+        self.__goal_frontier = None
+
         self.start_time = time.time()
 
-    def set_frontier(self, frontier_col, frontier_row):
-        self.__frontier_row = frontier_row
-        self.__frontier_col = frontier_col
+        self.__path = []
+
+    def set_frontiers(self, frontiers, goal_frontier):
+        self.__frontiers = frontiers
+        self.__goal_frontier = goal_frontier
+
+    def set_path(self, path):
+        self.__path = path
 
     def updateMap(self, grid, maxValue, robot_col, robot_row):  # TODO add frontiers parameter
         """
@@ -91,8 +96,6 @@ class ShowMap(object):
                     # set pixel value
                     self.__image.putpixel((row, col), abs(value * 255 / maxValue - 255))
 
-        # TODO: for frontier in frontiers: putpixel(some other color that is not black/white/gray)
-
         # update the plot withe new image
         self.__ax.clear()
         self.__implot = self.__ax.imshow(self.__image)
@@ -101,11 +104,20 @@ class ShowMap(object):
         self.__ax.set_xticks([])
         self.__ax.set_yticks([])
 
+        for point in self.__path:
+            col = point[0]
+            row = point[1]
+
+            self.__ax.plot(col, row, 'bs', markersize=1)
+
+        for frontier in self.__frontiers:
+            self.__ax.plot(frontier[0], frontier[1], 'cs', markersize=1)
+
         # plot the robot pose
         self.__ax.plot(robot_col, robot_row, 'rs', markersize=self.__robot_size)
 
-        if self.__frontier_row is not None and self.__frontier_col is not None:
-            self.__ax.plot(self.__frontier_col, self.__frontier_row, 'gs', markersize=self.__robot_size)
+        if self.__goal_frontier is not None:
+            self.__ax.plot(self.__goal_frontier[0], self.__goal_frontier[1], 'gs', markersize=4)
 
         # draw new figure
         self.__fig.canvas.draw()

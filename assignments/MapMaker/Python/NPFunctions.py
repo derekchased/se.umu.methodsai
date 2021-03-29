@@ -33,3 +33,9 @@ def compute_distances_vector_matrix(robot_pos, path_matr):
         dists = np.sqrt(-2 * np.dot(path_matr, robot_pos_matr.T) + np.sum(robot_pos_matr**2, axis=1) + np.sum(path_matr**2, axis=1)[:, np.newaxis])
         #dists = -2 * np.dot(path_matr, robot_pos_matr.T) + np.sum(robot_pos_matr**2, axis=1) + np.sum(path_matr**2, axis=1)[:, np.newaxis]
         return dists[:,0]
+
+def distance_sq(point1, point2):
+    dx = point1[0] - point2[0]
+    dy = point1[0] - point2[0]
+
+    return dx**2 + dy**2

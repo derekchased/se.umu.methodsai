@@ -8,9 +8,11 @@ import NPFunctions as npf
 
 LOOK_AHEAD_DISTANCE = 5
 GOAL_THRESHOLD = .5
-MAX_LINEAR_SPEED = 1
+MAX_SPEED = 1
 
 class RobotDrive:
+
+
 
     # Constructor, takes path filename
     def __init__(self, robot):
@@ -55,6 +57,27 @@ class RobotDrive:
     def has_navigation_point(self):
         return self.__has_navigation
 
+
+    def get_orientation_error(self, look_ahead_point):
+        """
+        Return the orientation error in radians
+        """
+        robot_x = self.__robot_position['X']
+        robot_y = self.__robot_position['Y']
+        goal_x = look_ahead_point[0]
+        goal_y = look_ahead_point[1]
+
+        correct_orientation = math.atan2(goal_y - robot_y, goal_x - robot_x)
+        error = correct_orientation - self.__robot.getHeading()
+
+        # Correct error to be in range [-pi, pi)
+        while error <= -math.pi:
+            error = error + math.pi * 2
+        while error > math.pi:
+            error = error - math.pi * 2
+
+        return error
+
     # Main method to determine and update robot's velocity and heading
     def take_step(self):
         if not self.__has_navigation:
@@ -74,46 +97,17 @@ class RobotDrive:
 
         print("distance to nav point "+str(goal_point_index)+":",self.__robot_to_path_distances[goal_point_index])
 
-        # Get goal point as vector
-        self._goal_point_coordinate_world = self._path_matrix[goal_point_index]
+        orientation_error = self.get_orientation_error(self._path_matrix[goal_point_index])
 
-        # Get goal point x and y
-        goal_point_x_WCS = self._goal_point_coordinate_world[0]
-        goal_point_y_WCS = self._goal_point_coordinate_world[1]
-
-        # Get robot's global x and y coordinate
-        robot_position_x_WCS = self.__robot_position_vector[0]
-        robot_position_y_WCS = self.__robot_position_vector[1]
-
-        # Get robot's current heading
-        psi = self.__robot.getHeading()
-
-        # Convert goal point in world coordinates to robot's local coordinates
-        goal_point_x_RCS =  (goal_point_x_WCS - robot_position_x_WCS) * math.cos(psi) + (goal_point_y_WCS - robot_position_y_WCS) * math.sin(psi)
-        goal_point_y_RCS = -(goal_point_x_WCS - robot_position_x_WCS) * math.sin(psi) + (goal_point_y_WCS - robot_position_y_WCS) * math.cos(psi)
-
-        # Get robot local heading towards goal point
-        gp_angle_RCS = math.atan2(goal_point_y_RCS, goal_point_x_RCS)
-
-        # Get heading in local degrees
-        gp_abs_angle_RCS_degree = abs(gp_angle_RCS) * 180 / math.pi
-
-        # Choose linear speed based on degree of turning angle (tighter angle, slower speed)
-        linear_speed = 5
-
-        # Calculate turn rate
-        g = 2 * goal_point_y_RCS / LOOK_AHEAD_DISTANCE**2
-        turn_rate = linear_speed * g
-        if turn_rate >= .1:  
-            linear_speed = 25
+        # adjust robot speed based on orientation error, this makes
+        # it slow down on tight curves or when far from the path
+        speed = MAX_SPEED - abs(orientation_error) * (MAX_SPEED / np.pi)
 
         # Update robot speed and turn rate
-        self.__robot.setMotion(linear_speed, turn_rate/2)
+        self.__robot.setMotion(speed, orientation_error * 0.9)
 
         # Shorten the path matrix
         self._path_matrix = self._path_matrix[goal_point_index:,:]
-
-#        print("takestep",self.__robot_to_path_distances[0])
         
         # Determine if robot has anywhere to go
         if (len(self._path_matrix) == 1 and self.__robot_to_path_distances[0] < GOAL_THRESHOLD):
