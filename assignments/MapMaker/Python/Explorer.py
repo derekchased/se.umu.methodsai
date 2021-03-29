@@ -38,17 +38,17 @@ class Explorer:
 
         # Get robot XY position
         position_wcs = self.__robot.getPosition()
+        heading = self.__robot.getHeading()
 
         # Calculate the robot's position on the grid.
         robot_col, robot_row = self.__grid.wcs_to_grid(position_wcs['X'], position_wcs['Y'])
-        robot_coords = (int(robot_col), int(robot_row))
 
         grid = self.__grid.get_grid()
         mark_grid = np.full(grid.shape, Mark.NONE)
 
         frontiers = []
 
-        initial_coords = self.__determine_start_coords(robot_coords, grid.shape)
+        initial_coords = self.__determine_start_coords((robot_col, robot_row), grid.shape, heading)
 
         queue_m = deque()
         queue_m.append(initial_coords)
@@ -127,7 +127,7 @@ class Explorer:
 
         return sorted_frontier_medians
 
-    def __determine_start_coords(self, robot_coords, grid_shape):
+    def __determine_start_coords(self, robot_coords, grid_shape, heading):
         """
         Returns the coordinates closest to the robot that are still on the map.
         This only returns something different when the robot is off the map.
@@ -135,16 +135,30 @@ class Explorer:
         col = robot_coords[0]
         row = robot_coords[1]
 
+        adjusted = False
+
         if col < 0:
             col = 0
+            adjusted = True
         if col > grid_shape[0] - 1:
             col = grid_shape[0] - 1
+            adjusted = True
         if row < 0:
             row = 0
+            adjusted = True
         if row > grid_shape[1] - 1:
             row = grid_shape[1] - 1
+            adjusted = True
 
-        return [col, row]
+        print(heading)
+
+        if not adjusted:
+            # Move the starting point to be 1 grid cell in front of the robot. Grid cell directly under the robot
+            # could be unknown.
+            col = col + np.cos(heading)
+            row = row + np.sin(heading)
+
+        return int(col), int(row)
 
     def __distance_sq(self, point1, point2):
         dx = point1[0] - point2[0]
@@ -161,19 +175,19 @@ class Explorer:
     def __is_frontier_point(self, position):
         """
         Returns whether a point is a frontier.
-        A frontier point is an unknown point with at least one open-space neighbour
+        A frontier point is an open-space point with at least one unknown neighbour
         """
         grid = self.__grid.get_grid()
 
         value = grid[position[0], position[1]]
 
-        if self.UNKNOWN_LOWER_BOUND < value < self.UNKNOWN_UPPER_BOUND:
+        if value < self.UNKNOWN_LOWER_BOUND:
             neighbours = self.__get_neighbours(position)
 
             for point in neighbours:
                 value = grid[point[0], point[1]]
 
-                if value < self.UNKNOWN_LOWER_BOUND:
+                if self.UNKNOWN_LOWER_BOUND < value < self.UNKNOWN_UPPER_BOUND:
                     return True
         return False
 
