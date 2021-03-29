@@ -8,10 +8,9 @@ class WavefrontPlanner:
 
     OPEN_CERTAINTY = Explorer.UNKNOWN_UPPER_BOUND
 
-    def __init__(self, robot: Robot, occupancy_grid: OccupancyGrid, explorer:Explorer):
+    def __init__(self, robot: Robot, occupancy_grid: OccupancyGrid):
         self.__robot = robot
         self.__occupancy_grid = occupancy_grid
-        self.__explorer = explorer
         self.__wave_grid = np.zeros(occupancy_grid.get_size())
 
 
