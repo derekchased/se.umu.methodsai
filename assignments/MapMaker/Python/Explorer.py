@@ -40,18 +40,19 @@ class Explorer:
         position_wcs = self.__robot.getPosition()
 
         # Calculate the robot's position on the grid.
-        robot_x_grid, robot_y_grid = self.__grid.wcs_to_grid(position_wcs['X'], position_wcs['Y'])
-        robot_coords = (int(robot_y_grid), int(robot_x_grid))
+        robot_col, robot_row = self.__grid.wcs_to_grid(position_wcs['X'], position_wcs['Y'])
+        robot_coords = (int(robot_col), int(robot_row))
 
         grid = self.__grid.get_grid()
         mark_grid = np.full(grid.shape, Mark.NONE)
 
         frontiers = []
 
-        queue_m = deque()
+        initial_coords = self.__determine_start_coords(robot_coords, grid.shape)
 
-        queue_m.append(robot_coords)
-        self.__set_mark(mark_grid, robot_coords, Mark.MAP_OPEN_LIST)
+        queue_m = deque()
+        queue_m.append(initial_coords)
+        self.__set_mark(mark_grid, initial_coords, Mark.MAP_OPEN_LIST)
 
         while len(queue_m) > 0:
             p = queue_m.popleft()
@@ -120,12 +121,30 @@ class Explorer:
         frontier_medians = np.array(frontier_medians)
 
         # Sort based on distance to robot
-        euclid_distances = np.apply_along_axis(self.__distance_sq, 1, frontier_medians, (robot_y_grid, robot_x_grid))
+        euclid_distances = np.apply_along_axis(self.__distance_sq, 1, frontier_medians, (robot_row, robot_col))
         order = np.argsort(euclid_distances)
         sorted_frontier_medians = frontier_medians[order]
 
         return sorted_frontier_medians
 
+    def __determine_start_coords(self, robot_coords, grid_shape):
+        """
+        Returns the coordinates closest to the robot that are still on the map.
+        This only returns something different when the robot is off the map.
+        """
+        col = robot_coords[0]
+        row = robot_coords[1]
+
+        if col < 0:
+            col = 0
+        if col > grid_shape[0] - 1:
+            col = grid_shape[0] - 1
+        if row < 0:
+            row = 0
+        if row > grid_shape[1] - 1:
+            row = grid_shape[1] - 1
+
+        return [col, row]
 
     def __distance_sq(self, point1, point2):
         dx = point1[0] - point2[0]

@@ -44,11 +44,10 @@ class RobotController:
 
         try:
             self.main_loop()
-        except:
+        except KeyboardInterrupt:
             self.__robot.setMotion(0, 0)
 
     def main_loop(self):
-
         while self.__loop_running:
 
             # Force take a scan every 10 cycles
@@ -57,6 +56,9 @@ class RobotController:
 
             # Update map if scan flag is true
             if self.__take_a_scan:
+                # Not exactly necessary, but does help increase map resolution
+                #self.__robot.setMotion(0.0, 0.0)
+                print("Taking scan")
                 # Get robot XY position
                 position_wcs = self.__robot.getPosition()
                 self.__laser.update_grid(position_wcs['X'], position_wcs['Y'])
@@ -83,12 +85,12 @@ class RobotController:
                     # TODO, which node to select?
                     
                     # #  -> for now, take furthest node
-                    # frontier_x_grid = int(frontiers[-1][0])
-                    # frontier_y_grid = int(frontiers[-1][1])
+                    frontier_x_grid = int(frontiers[-1][0])
+                    frontier_y_grid = int(frontiers[-1][1])
 
                     #  take closest node
-                    frontier_x_grid = int(frontiers[0][0])
-                    frontier_y_grid = int(frontiers[0][1])
+                    #frontier_x_grid = int(frontiers[0][0])
+                    #frontier_y_grid = int(frontiers[0][1])
 
                     # add/update green dot on the image
                     self.__show_map.set_frontier(frontier_x_grid, frontier_y_grid)
@@ -149,10 +151,17 @@ if __name__ == "__main__":
 
         url = "http://localhost:50000"
         show_gui = False
-        x_min = y_min = -30
-        x_max = y_max = 30
+        x_min = -20
+        y_min = -30
+        x_max = 20
+        y_max = 30
 
         # TODO: exit(1)
 
     robotController = RobotController(x_min, y_min, x_max, y_max, show_gui, url)
+
+    print("Starting RobotController")
+
     robotController.main()
+
+    print("Done")

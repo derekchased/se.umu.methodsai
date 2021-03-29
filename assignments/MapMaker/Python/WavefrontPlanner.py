@@ -6,7 +6,7 @@ import numpy as np
 
 class WavefrontPlanner:
 
-    OPEN_CERTAINTY = .45
+    OPEN_CERTAINTY = .65
 
     def __init__(self, robot: Robot, occupancy_grid: OccupancyGrid, explorer:Explorer):
         self.__robot = robot
@@ -14,10 +14,8 @@ class WavefrontPlanner:
         self.__cols, self.__rows = self.__occupancy_grid.get_size()
         self.__explorer = explorer
         self.__wave_grid = []
-        
 
-
-    def get_grid_path(self, frontier_x_grid:int, frontier_y_grid:int):
+    def get_grid_path(self, frontier_x_grid: int, frontier_y_grid: int):
         # Get robot XY position
         position_wcs = self.__robot.getPosition()
 
@@ -27,7 +25,7 @@ class WavefrontPlanner:
         robot_y_grid = int(robot_y_grid)
 
         # Init "wave" grid to zeros        
-        self.__wave_grid = np.zeros(self.__occupancy_grid.get_grid().shape)
+        self.__wave_grid = np.zeros(self.__occupancy_grid.get_size())
 
         # Set the robot's position on the grid to 1
         current_distance = 1
@@ -63,12 +61,12 @@ class WavefrontPlanner:
 
         if goal_point_value < 0:
             print("goal_point_value < 0 (marked as obstacle)", current_distance)
-            # TODO- goal poiint marked as an obstacle
-            # select closest? choose different fronteir node?
+            # TODO- goal point marked as an obstacle
+            # select closest? choose different frontier node?
             assert error
         elif goal_point_value == 0:
             # TODO- goal point was not reached (perhaps surrounded by obstacles)
-            # select closest? choose different fronteir node?
+            # select closest? choose different frontier node?
             print("goal_point_value == 0 (not checked yet)", current_distance)
             assert error
         else:
