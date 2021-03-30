@@ -92,13 +92,14 @@ class RobotController:
         print("Taking scan")
         # Get robot XY position
         position_wcs = self.__robot.getPosition()
+        heading = self.__robot.getHeading()
         self.__laser.update_grid(position_wcs['X'], position_wcs['Y'])
 
         # Calculate the robot's position on the grid.
         robot_col, robot_row = self.__local_map.wcs_to_grid(position_wcs['X'], position_wcs['Y'])
 
         # Update map with latest grid values and the robot's position
-        self.__show_map.updateMap(self.__local_map.get_grid(), 1, robot_col, robot_row)
+        self.__show_map.updateMap(self.__local_map.get_grid(), 1, robot_col, robot_row, heading)
 
         self.__show_map.close()
 

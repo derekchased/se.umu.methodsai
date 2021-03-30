@@ -120,7 +120,13 @@ class Explorer:
         # with unknown areas.
         for frontier in frontiers:
             median = np.median(frontier, axis=0)
-            frontier_medians.append(median)
+
+            # Only add frontiers that are in open areas
+            if grid[int(median[0]), int(median[1])] <= Explorer.UNKNOWN_LOWER_BOUND:
+                frontier_medians.append(median)
+
+        if len(frontier_medians) == 0:
+            return [initial_coords]
 
         frontier_medians = np.array(frontier_medians)
 
@@ -141,8 +147,8 @@ class Explorer:
 
         # Move the starting point to be 3 grid cells in front of the robot. Grid cell directly under the robot
         # could be unknown.
-        col = col + (3 * np.cos(heading))
-        row = row + (3 * np.sin(heading))
+        col = col + (3 * np.sin(heading))
+        row = row + (3 * np.cos(heading))
 
         if col < 0:
             col = 0

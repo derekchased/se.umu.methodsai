@@ -8,7 +8,7 @@ from robot import Robot
 
 class WavefrontPlanner:
 
-    OPEN_CERTAINTY = Explorer.UNKNOWN_UPPER_BOUND
+    OPEN_CERTAINTY = Explorer.UNKNOWN_LOWER_BOUND
 
     def __init__(self, robot: Robot, occupancy_grid: OccupancyGrid):
         self.__robot = robot

@@ -5,6 +5,8 @@ import numpy as np
 import time
 import threading
 
+from matplotlib import pyplot
+
 """
 ShowMap creates a Gui for showing the progress of the created map and saves it to file every 5 second
 Author Peter Hohnloser
@@ -68,7 +70,7 @@ class ShowMap(object):
     def set_path(self, path):
         self.__path = path
 
-    def updateMap(self, grid, maxValue, robot_col, robot_row):  # TODO add frontiers parameter
+    def updateMap(self, grid, maxValue, robot_col, robot_row, robot_heading):  # TODO add frontiers parameter
         """
         Creates a new BufferedImage from a grid with integer values between 0 - maxVal,
         where 0 is black and maxVal is white, with a grey scale in between. Negative values are shown as gray.
@@ -112,6 +114,12 @@ class ShowMap(object):
 
         for frontier in self.__frontiers:
             self.__ax.plot(frontier[0], frontier[1], 'cs', markersize=1)
+
+        heading_col = robot_col + (10 * np.sin(robot_heading))
+        heading_row = robot_row + (10 * np.cos(robot_heading))
+
+        # plot the robot heading
+        self.__ax.plot([robot_col, heading_col], [robot_row, heading_row], 'r-', linewidth=2)
 
         # plot the robot pose
         self.__ax.plot(robot_col, robot_row, 'rs', markersize=self.__robot_size)
