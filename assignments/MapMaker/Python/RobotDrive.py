@@ -7,7 +7,7 @@ import numpy as np
 import NPFunctions as npf
 
 LOOK_AHEAD_DISTANCE = 2
-GOAL_THRESHOLD = .5
+GOAL_THRESHOLD = 1
 MAX_SPEED = 1
 
 class RobotDrive:

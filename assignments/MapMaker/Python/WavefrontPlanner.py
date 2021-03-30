@@ -20,19 +20,6 @@ class WavefrontPlanner:
         self.__wave_grid = np.zeros(occupancy_grid.get_size())
 
     def get_path_to_frontier(self, frontiers):
-        obstacle_mask = self.__get_obstacle_mask()
-
-        for frontier in frontiers:
-            if obstacle_mask[frontier[0], frontier[1]] == 0:
-                path = self.get_grid_path(frontier[0], frontier[1], obstacle_mask)
-
-                if path is not None:
-                    return path
-
-        print("no path to any frontier found")
-        assert error
-
-    def get_grid_path(self, frontier_x_grid, frontier_y_grid, obstacle_mask):
         # Get robot XY position
         position_wcs = self.__robot.getPosition()
 
@@ -40,6 +27,19 @@ class WavefrontPlanner:
         robot_x_grid, robot_y_grid = self.__occupancy_grid.wcs_to_grid(position_wcs['X'], position_wcs['Y'])
         robot_x_grid = int(robot_x_grid)
         robot_y_grid = int(robot_y_grid)
+
+        for frontier in frontiers:
+            obstacle_mask = self.__get_obstacle_mask(frontier, robot_x_grid, robot_y_grid)
+            if obstacle_mask[frontier[0], frontier[1]] == 0:
+                path = self.get_grid_path(frontier[0], frontier[1], robot_x_grid, robot_y_grid, obstacle_mask)
+
+                if path is not None:
+                    return path
+
+        print("no path to any frontier found")
+        assert error
+
+    def get_grid_path(self, frontier_x_grid, frontier_y_grid, robot_x_grid, robot_y_grid, obstacle_mask):
 
         # Init "wave" grid to zeros
         self.__wave_grid = np.zeros(self.__occupancy_grid.get_grid().shape)
@@ -139,12 +139,23 @@ class WavefrontPlanner:
             # return the recurive call plus append these coords to list
             return path_from_neighbour
 
-    def __get_obstacle_mask(self):
+    def __get_obstacle_mask(self, frontier, robot_x, robot_y):
         grid = self.__occupancy_grid.get_grid()
 
+        # a grid containing only true or false. True for obstacles, false for unknown or empty
         obstacle_mask = np.greater(grid, self.OBSTACLE_CERTAINTY)
 
-        structel_size = int(math.ceil(2.0 / self.__occupancy_grid.cell_size))
-        structel = np.ones((structel_size, structel_size)).astype(bool)
+        # A mask for where the obstacle_map should be dilated. This should not happen near the frontier or at the
+        # current position of the robot.
+        frontier_mask = np.ones(grid.shape)
+        frontier_mask[frontier[0], frontier[1]] = 0
+        frontier_mask[robot_x, robot_y] = 0
 
-        return ndimage.binary_dilation(obstacle_mask, structel)
+        structel_size = int(math.ceil(2.0 / self.__occupancy_grid.cell_size))
+        structel_frontier = np.ones((int(structel_size/2), int(structel_size/2))).astype(bool)
+
+        frontier_mask = ndimage.binary_erosion(frontier_mask, structel_frontier)
+
+        structel_obstacle = np.ones((structel_size, structel_size)).astype(bool)
+
+        return ndimage.binary_dilation(obstacle_mask, structel_obstacle, 1, frontier_mask)

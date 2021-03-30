@@ -119,6 +119,10 @@ class Explorer:
         # Only select frontier medians that are in open space. This is because the wavefront planner cannot deal
         # with unknown areas.
         for frontier in frontiers:
+            # Skip very small frontiers
+            if len(frontier) < 6:
+                continue
+
             median = np.median(frontier, axis=0).astype(int)
 
             # Only add frontiers that are in open areas
