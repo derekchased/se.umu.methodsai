@@ -114,10 +114,10 @@ class RobotController:
 
             length = len(frontiers)
 
-            start_idx = 0 if self.CYCLES >= 10 else int(length / 2)
+            idx = 0 if self.CYCLES >= 10 else int(length / 2)
 
-            frontier_x_grid = int(frontiers[start_idx][0])
-            frontier_y_grid = int(frontiers[start_idx][1])
+            frontier_x_grid = int(frontiers[idx][0])
+            frontier_y_grid = int(frontiers[idx][1])
 
             # add/update green dot on the image
             self.__show_map.set_frontiers(frontiers, (frontier_x_grid, frontier_y_grid))

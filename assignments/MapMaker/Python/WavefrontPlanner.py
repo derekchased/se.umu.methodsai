@@ -1,8 +1,10 @@
-import NPFunctions
-from robot import Robot
-from OccupancyGrid import OccupancyGrid
-from Explorer import Explorer
 import numpy as np
+
+import NPFunctions
+from Explorer import Explorer
+from OccupancyGrid import OccupancyGrid
+from robot import Robot
+
 
 class WavefrontPlanner:
 
@@ -72,7 +74,9 @@ class WavefrontPlanner:
 
     def __update_neighbors(self, x, y, distance):
         open_neighbours = []
-        neighbours = self.__get_neighbours(x, y)
+        max_x, max_y = self.__occupancy_grid.get_size()
+
+        neighbours = NPFunctions.get_neighbours(x, y, max_x, max_y)
 
         for neighbour in neighbours:
             if self.__wave_grid[neighbour[0], neighbour[1]] != 0:
@@ -90,30 +94,6 @@ class WavefrontPlanner:
 
         return open_neighbours
 
-    def __get_neighbours(self, x, y):
-        """
-        Return all neighbours of a position within grid bounds (4-connected)
-        """
-        max_x, max_y = self.__occupancy_grid.get_size()
-
-        neighbours = []
-
-        left = x > 0
-        right = x + 1 < max_x
-        top = y > 0
-        bottom = y + 1 < max_y
-
-        if left:
-            neighbours.append((x - 1, y))
-        if right:
-            neighbours.append((x + 1, y))
-        if top:
-            neighbours.append((x, y - 1))
-        if bottom:
-            neighbours.append((x, y + 1))
-
-        return neighbours
-
     def __backtrack_path(self, x, y):
         current_distance = self.__wave_grid[x, y]
 
@@ -126,7 +106,8 @@ class WavefrontPlanner:
         elif current_distance > 1:
             next_distance = current_distance - 1
 
-            neighbours = self.__get_neighbours(x, y)
+            max_x, max_y = self.__occupancy_grid.get_size()
+            neighbours = NPFunctions.get_neighbours(x, y, max_x, max_y)
 
             shortest_neighbour = None
 

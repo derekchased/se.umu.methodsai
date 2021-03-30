@@ -188,28 +188,4 @@ class Explorer:
         y = position[1]
         max_x, max_y = self.__grid.get_size()
 
-        neighbours = []
-
-        left = x > 0
-        right = x + 1 < max_x
-        top = y > 0
-        bottom = y + 1 < max_y
-
-        if left:
-            neighbours.append((x - 1, y))
-        if right:
-            neighbours.append((x + 1, y))
-        if top:
-            neighbours.append((x, y - 1))
-        if bottom:
-            neighbours.append((x, y + 1))
-        if top and left:
-            neighbours.append((x - 1, y - 1))
-        if top and right:
-            neighbours.append((x + 1, y - 1))
-        if bottom and left:
-            neighbours.append((x - 1, y + 1))
-        if bottom and right:
-            neighbours.append((x + 1, y + 1))
-
-        return neighbours
+        return NPFunctions.get_neighbours(x, y, max_x, max_y)
