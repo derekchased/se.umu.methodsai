@@ -6,7 +6,7 @@ import math
 import numpy as np
 import NPFunctions as npf
 
-LOOK_AHEAD_DISTANCE = 5
+LOOK_AHEAD_DISTANCE = 2
 GOAL_THRESHOLD = .5
 MAX_SPEED = 1
 
@@ -101,16 +101,16 @@ class RobotDrive:
 
         # adjust robot speed based on orientation error, this makes
         # it slow down on tight curves or when far from the path
-        speed = MAX_SPEED - abs(orientation_error) * (MAX_SPEED / np.pi)
+        speed = MAX_SPEED - abs(orientation_error) * MAX_SPEED
 
         # Update robot speed and turn rate
-        self.__robot.setMotion(speed, orientation_error * 0.9)
+        self.__robot.setMotion(max(speed, 0), orientation_error * 0.9)
 
         # Shorten the path matrix
         self._path_matrix = self._path_matrix[goal_point_index:,:]
         
         # Determine if robot has anywhere to go
-        if (len(self._path_matrix) == 1 and self.__robot_to_path_distances[0] < GOAL_THRESHOLD):
+        if len(self._path_matrix) == 1 and self.__robot_to_path_distances[0] < GOAL_THRESHOLD:
             self.__has_navigation = False
             self._path_matrix = None
             self.__robot.setMotion(0, 0)

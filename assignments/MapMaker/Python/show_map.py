@@ -1,11 +1,9 @@
 import datetime
-
-from  PIL import Image
-import numpy as np
-import time
 import threading
+import time
 
-from matplotlib import pyplot
+import numpy as np
+from PIL import Image
 
 """
 ShowMap creates a Gui for showing the progress of the created map and saves it to file every 5 second
@@ -57,20 +55,18 @@ class ShowMap(object):
         plt.show(block=False)
         self.__fig.canvas.draw()
         self.__frontiers = []
-        self.__goal_frontier = None
 
         self.start_time = time.time()
 
         self.__path = []
 
-    def set_frontiers(self, frontiers, goal_frontier):
+    def set_frontiers(self, frontiers):
         self.__frontiers = frontiers
-        self.__goal_frontier = goal_frontier
 
     def set_path(self, path):
         self.__path = path
 
-    def updateMap(self, grid, maxValue, robot_col, robot_row, robot_heading):  # TODO add frontiers parameter
+    def updateMap(self, grid, robot_col, robot_row, robot_heading):  # TODO add frontiers parameter
         """
         Creates a new BufferedImage from a grid with integer values between 0 - maxVal,
         where 0 is black and maxVal is white, with a grey scale in between. Negative values are shown as gray.
@@ -78,25 +74,12 @@ class ShowMap(object):
 
         Args:
             param grid is the updated grid (numpy matrix or a two-dimensional array)
-            param maxVal is the max value that is used in the grid
             param robot_row is the current position of the robot in grid row
             param robot_col is the current position of the robot in grid column
         """
-        # convert grid to a numpy matrix
-        grid = np.matrix(grid)
+        new_image = Image.fromarray(np.transpose(1.0 - grid) * 255)
 
-        # mapping the grid to an Image
-        for col in range(self.__size[0]):
-            for row in range(self.__size[1]):
-                value = grid[row, col]
-                # if value is <0 draw a gray pixel else mapping the value between 0 - 255
-                # where 0 is black and 255 is white
-                if value < 0:
-                    # set pixel value to gray
-                    self.__image.putpixel((row, col), 127)
-                else:
-                    # set pixel value
-                    self.__image.putpixel((row, col), abs(value * 255 / maxValue - 255))
+        self.__image.paste(new_image)
 
         # update the plot withe new image
         self.__ax.clear()
@@ -106,14 +89,13 @@ class ShowMap(object):
         self.__ax.set_xticks([])
         self.__ax.set_yticks([])
 
-        for point in self.__path:
-            col = point[0]
-            row = point[1]
+        if len(self.__path) > 0:
+            path_xs, path_ys = np.transpose(self.__path)
+            self.__ax.scatter(path_xs, path_ys, 1, c='b')
 
-            self.__ax.plot(col, row, 'bs', markersize=1)
-
-        for frontier in self.__frontiers:
-            self.__ax.plot(frontier[0], frontier[1], 'cs', markersize=1)
+        if len(self.__frontiers) > 0:
+            xs, ys = np.transpose(self.__frontiers)
+            self.__ax.scatter(xs, ys, 1, c='g')
 
         heading_col = robot_col + (10 * np.sin(robot_heading))
         heading_row = robot_row + (10 * np.cos(robot_heading))
@@ -123,9 +105,6 @@ class ShowMap(object):
 
         # plot the robot pose
         self.__ax.plot(robot_col, robot_row, 'rs', markersize=self.__robot_size)
-
-        if self.__goal_frontier is not None:
-            self.__ax.plot(self.__goal_frontier[0], self.__goal_frontier[1], 'gs', markersize=4)
 
         # draw new figure
         self.__fig.canvas.draw()

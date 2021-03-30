@@ -87,8 +87,6 @@ class RobotController:
         self.__show_map.close()
 
     def __do_take_scan(self):
-        # Not exactly necessary, but does help increase map resolution
-        # self.__robot.setMotion(0.0, 0.0)
         print("Taking scan")
         # Get robot XY position
         position_wcs = self.__robot.getPosition()
@@ -99,7 +97,7 @@ class RobotController:
         robot_col, robot_row = self.__local_map.wcs_to_grid(position_wcs['X'], position_wcs['Y'])
 
         # Update map with latest grid values and the robot's position
-        self.__show_map.updateMap(self.__local_map.get_grid(), 1, robot_col, robot_row, heading)
+        self.__show_map.updateMap(self.__local_map.get_grid(), robot_col, robot_row, heading)
 
         self.__show_map.close()
 
@@ -109,22 +107,11 @@ class RobotController:
         frontiers = self.__explorer.get_frontiers()
 
         if len(frontiers) > 0:
-            # TODO, frontier should be some minimum distance away from the robot
-
-            # TODO, which node to select?
-
-            length = len(frontiers)
-
-            idx = 0 if self.CYCLES >= 10 else int(length / 2)
-
-            frontier_x_grid = int(frontiers[idx][0])
-            frontier_y_grid = int(frontiers[idx][1])
-
-            # add/update green dot on the image
-            self.__show_map.set_frontiers(frontiers, (frontier_x_grid, frontier_y_grid))
+            # add/update green dots on the image
+            self.__show_map.set_frontiers(frontiers)
 
             # Get new path from the path planner
-            path_grid = np.array(self.__path_planner.get_grid_path(int(frontier_x_grid), int(frontier_y_grid)))
+            path_grid = np.array(self.__path_planner.get_path_to_frontier(frontiers))
 
             # Convert path (grid) to WCS
             path_x_wcs, path_y_wcs = self.__local_map.grid_to_wcs(path_grid[:, 0], path_grid[:, 1])

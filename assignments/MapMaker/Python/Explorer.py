@@ -119,10 +119,10 @@ class Explorer:
         # Only select frontier medians that are in open space. This is because the wavefront planner cannot deal
         # with unknown areas.
         for frontier in frontiers:
-            median = np.median(frontier, axis=0)
+            median = np.median(frontier, axis=0).astype(int)
 
             # Only add frontiers that are in open areas
-            if grid[int(median[0]), int(median[1])] <= Explorer.UNKNOWN_LOWER_BOUND:
+            if grid[median[0], median[1]] <= Explorer.UNKNOWN_LOWER_BOUND:
                 frontier_medians.append(median)
 
         if len(frontier_medians) == 0:

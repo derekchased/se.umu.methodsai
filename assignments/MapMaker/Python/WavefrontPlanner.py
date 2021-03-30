@@ -1,4 +1,7 @@
+import math
+
 import numpy as np
+from scipy import ndimage
 
 import NPFunctions
 from Explorer import Explorer
@@ -9,14 +12,27 @@ from robot import Robot
 class WavefrontPlanner:
 
     OPEN_CERTAINTY = Explorer.UNKNOWN_LOWER_BOUND
+    OBSTACLE_CERTAINTY = Explorer.UNKNOWN_UPPER_BOUND
 
     def __init__(self, robot: Robot, occupancy_grid: OccupancyGrid):
         self.__robot = robot
         self.__occupancy_grid = occupancy_grid
         self.__wave_grid = np.zeros(occupancy_grid.get_size())
 
+    def get_path_to_frontier(self, frontiers):
+        obstacle_mask = self.__get_obstacle_mask()
 
-    def get_grid_path(self, frontier_x_grid: int, frontier_y_grid: int):
+        for frontier in frontiers:
+            if obstacle_mask[frontier[0], frontier[1]] == 0:
+                path = self.get_grid_path(frontier[0], frontier[1], obstacle_mask)
+
+                if path is not None:
+                    return path
+
+        print("no path to any frontier found")
+        assert error
+
+    def get_grid_path(self, frontier_x_grid, frontier_y_grid, obstacle_mask):
         # Get robot XY position
         position_wcs = self.__robot.getPosition()
 
@@ -46,7 +62,7 @@ class WavefrontPlanner:
                 y = neighbor_coordinates[1]
 
                 # Update neighbors with new distance
-                updated_neighbors += self.__update_neighbors(x, y, current_distance)
+                updated_neighbors += self.__update_neighbors(x, y, current_distance, obstacle_mask)
 
             # If no neighbors were updated then??
             if len(updated_neighbors) == 0:
@@ -63,16 +79,17 @@ class WavefrontPlanner:
             print("goal_point_value < 0 (marked as obstacle)", current_distance)
             # TODO- goal point marked as an obstacle
             # select closest? choose different frontier node?
-            assert error
+            #assert error
+            return None
         elif goal_point_value == 0:
             # TODO- goal point was not reached (perhaps surrounded by obstacles)
             # select closest? choose different frontier node?
             print("goal_point_value == 0 (not checked yet)", current_distance)
-            assert error
+            return None
         else:
             return self.__backtrack_path(frontier_x_grid, frontier_y_grid)
 
-    def __update_neighbors(self, x, y, distance):
+    def __update_neighbors(self, x, y, distance, obstacle_mask):
         open_neighbours = []
         max_x, max_y = self.__occupancy_grid.get_size()
 
@@ -86,7 +103,7 @@ class WavefrontPlanner:
             neighbour_value = self.__occupancy_grid.get_grid()[neighbour[0], neighbour[1]]
             neighbour_distance = -1
 
-            if neighbour_value < self.OPEN_CERTAINTY:
+            if neighbour_value < self.OPEN_CERTAINTY and obstacle_mask[neighbour[0], neighbour[1]] == 0:
                 neighbour_distance = distance
                 open_neighbours.append(neighbour)
 
@@ -121,3 +138,13 @@ class WavefrontPlanner:
             path_from_neighbour.append([x, y])
             # return the recurive call plus append these coords to list
             return path_from_neighbour
+
+    def __get_obstacle_mask(self):
+        grid = self.__occupancy_grid.get_grid()
+
+        obstacle_mask = np.greater(grid, self.OBSTACLE_CERTAINTY)
+
+        structel_size = int(math.ceil(2.0 / self.__occupancy_grid.cell_size))
+        structel = np.ones((structel_size, structel_size)).astype(bool)
+
+        return ndimage.binary_dilation(obstacle_mask, structel)
