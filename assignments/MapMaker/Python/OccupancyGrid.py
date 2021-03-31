@@ -39,10 +39,10 @@ class OccupancyGrid:
         Converts an (x,y) position in the world to a (row,col) coordinate in the grid
         :param x_wcs: x-position in the world
         :param y_wcs: y-position in the world
-        :return: A tuple with (row,col)
+        :return (int, int): A tuple with (row,col)
         """
-        col = ((x_wcs - self.x_anchor) / self.cell_size)
-        row = ((y_wcs - self.y_anchor) / self.cell_size)
+        col = int( (x_wcs - self.x_anchor) / self.cell_size)
+        row = int( (y_wcs - self.y_anchor) / self.cell_size)
         return row, col
 
     def grid_to_wcs(self, row_grid, col_grid):
