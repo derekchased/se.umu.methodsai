@@ -124,8 +124,6 @@ class Explorer:
 
             median = np.median(frontier, axis=0).astype(int)
 
-            # Only add frontiers that are in open areas
-            #if grid[median[0], median[1]] <= Explorer.UNKNOWN_LOWER_BOUND:
             frontier_medians.append(median)
 
         if len(frontier_medians) == 0:
