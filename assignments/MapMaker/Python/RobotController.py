@@ -149,10 +149,10 @@ if __name__ == "__main__":
 
         url = "http://localhost:50000"
         show_gui = False
-        x_min = -20
+        x_min = -30
         y_min = -30
         x_max = 20
-        y_max = 30
+        y_max = 20
 
         # TODO: exit(1)
 
