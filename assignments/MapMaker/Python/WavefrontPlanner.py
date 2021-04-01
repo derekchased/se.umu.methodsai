@@ -28,28 +28,33 @@ class WavefrontPlanner:
         robot_x_grid = int(robot_x_grid)
         robot_y_grid = int(robot_y_grid)
 
-        for frontier in frontiers:
-            obstacle_mask = self.__get_obstacle_mask(frontier, robot_x_grid, robot_y_grid)
-            if obstacle_mask[frontier[0], frontier[1]] == 0:
-                path = self.get_grid_path(frontier[0], frontier[1], robot_x_grid, robot_y_grid, obstacle_mask)
+        obstacle_mask = self.__get_obstacle_mask(frontiers, robot_x_grid, robot_y_grid)
+        self.__compute_wave_grid(obstacle_mask, robot_x_grid, robot_y_grid)
 
-                if path is not None:
-                    return path
+        # Sort frontiers based on path length
+        path_distances = np.apply_along_axis(NPFunctions.grid_value, 1, frontiers, self.__wave_grid)
+        order = np.argsort(path_distances)
+        sorted_frontiers = frontiers[order]
+
+        for frontier in sorted_frontiers:
+            path = self.__backtrack_path(frontier[0], frontier[1])
+
+            if path is not None:
+                return path
 
         print("no path to any frontier found")
         assert error
 
-    def get_grid_path(self, frontier_x_grid, frontier_y_grid, robot_x_grid, robot_y_grid, obstacle_mask):
-
+    def __compute_wave_grid(self, obstacle_mask, robot_x_grid, robot_y_grid):
         # Init "wave" grid to zeros
         self.__wave_grid = np.zeros(self.__occupancy_grid.get_grid().shape)
 
         # Set the robot's position on the grid to 1
         current_distance = 1
         self.__wave_grid[robot_x_grid, robot_y_grid] = current_distance
-        goal_point_value = 0
+
         expand_wave = True
-        
+
         while expand_wave:
             # get all x, y coordinates of elements with value == current_distance
             current_wave_coordinates = np.transpose((self.__wave_grid == current_distance).nonzero())
@@ -64,30 +69,9 @@ class WavefrontPlanner:
                 # Update neighbors with new distance
                 updated_neighbors += self.__update_neighbors(x, y, current_distance, obstacle_mask)
 
-            # If no neighbors were updated then??
+            # If no neighbors were updated then we are done
             if len(updated_neighbors) == 0:
-                print("len(updated_neighbors) == 0")
                 expand_wave = False
-               #assert error
-            else:
-                goal_point_value = self.__wave_grid[frontier_x_grid, frontier_y_grid]
-
-                if goal_point_value != 0:
-                    expand_wave = False
-
-        if goal_point_value < 0:
-            print("goal_point_value < 0 (marked as obstacle)", current_distance)
-            # TODO- goal point marked as an obstacle
-            # select closest? choose different frontier node?
-            #assert error
-            return None
-        elif goal_point_value == 0:
-            # TODO- goal point was not reached (perhaps surrounded by obstacles)
-            # select closest? choose different frontier node?
-            print("goal_point_value == 0 (not checked yet)", current_distance)
-            return None
-        else:
-            return self.__backtrack_path(frontier_x_grid, frontier_y_grid)
 
     def __update_neighbors(self, x, y, distance, obstacle_mask):
         open_neighbours = []
@@ -118,8 +102,7 @@ class WavefrontPlanner:
             # reached robot position!
             return [[x, y]]
         elif current_distance < 1:
-            print("error current_distance < 1")
-            assert error
+            return None
         elif current_distance > 1:
             next_distance = current_distance - 1
 
@@ -139,7 +122,7 @@ class WavefrontPlanner:
             # return the recurive call plus append these coords to list
             return path_from_neighbour
 
-    def __get_obstacle_mask(self, frontier, robot_x, robot_y):
+    def __get_obstacle_mask(self, frontiers, robot_x, robot_y):
         grid = self.__occupancy_grid.get_grid()
 
         # a grid containing only true or false. True for obstacles, false for unknown or empty
@@ -148,8 +131,9 @@ class WavefrontPlanner:
         # A mask for where the obstacle_map should be dilated. This should not happen near the frontier or at the
         # current position of the robot.
         frontier_mask = np.ones(grid.shape)
-        frontier_mask[frontier[0], frontier[1]] = 0
         frontier_mask[robot_x, robot_y] = 0
+        for frontier in frontiers:
+            frontier_mask[frontier[0], frontier[1]] = 0
 
         structel_size = int(math.ceil(2.0 / self.__occupancy_grid.cell_size))
         structel_frontier = np.ones((int(structel_size/2), int(structel_size/2))).astype(bool)

@@ -34,11 +34,8 @@ def compute_distances_vector_matrix(robot_pos, path_matr):
         #dists = -2 * np.dot(path_matr, robot_pos_matr.T) + np.sum(robot_pos_matr**2, axis=1) + np.sum(path_matr**2, axis=1)[:, np.newaxis]
         return dists[:,0]
 
-def distance_sq(point1, point2):
-    dx = point1[0] - point2[0]
-    dy = point1[0] - point2[0]
-
-    return dx**2 + dy**2
+def grid_value(point, grid):
+    return grid[point[0], point[1]]
 
 def get_neighbours(x, y, max_x, max_y):
     """

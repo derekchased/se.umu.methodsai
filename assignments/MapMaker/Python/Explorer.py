@@ -29,8 +29,7 @@ class Explorer:
 
     def get_frontiers(self):
         """
-        Returns a list of all frontiers on the current map, ordered by euclidian distance to the median of the frontier,
-        in ascending order.
+        Returns a list of all frontiers on the current map.
 
         Algorithm based on: https://arxiv.org/ftp/arxiv/papers/1806/1806.03581.pdf
         """
@@ -126,20 +125,15 @@ class Explorer:
             median = np.median(frontier, axis=0).astype(int)
 
             # Only add frontiers that are in open areas
-            if grid[median[0], median[1]] <= Explorer.UNKNOWN_LOWER_BOUND:
-                frontier_medians.append(median)
+            #if grid[median[0], median[1]] <= Explorer.UNKNOWN_LOWER_BOUND:
+            frontier_medians.append(median)
 
         if len(frontier_medians) == 0:
             return [initial_coords]
 
         frontier_medians = np.array(frontier_medians)
 
-        # Sort based on distance to robot
-        euclid_distances = np.apply_along_axis(NPFunctions.distance_sq, 1, frontier_medians, initial_coords)
-        order = np.argsort(euclid_distances)
-        sorted_frontier_medians = frontier_medians[order]
-
-        return sorted_frontier_medians
+        return frontier_medians
 
     def __determine_start_coords(self, robot_coords, grid_shape, heading):
         """
