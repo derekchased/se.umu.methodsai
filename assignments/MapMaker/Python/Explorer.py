@@ -127,7 +127,7 @@ class Explorer:
             frontier_medians.append(median)
 
         if len(frontier_medians) == 0:
-            return [initial_coords]
+            return np.array([initial_coords])
 
         frontier_medians = np.array(frontier_medians)
 
