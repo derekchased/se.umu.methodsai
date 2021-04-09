@@ -40,10 +40,9 @@ class WavefrontPlanner:
             path = self.__backtrack_path(frontier[0], frontier[1])
 
             if path is not None:
-                return path
+                return path, frontier[0], frontier[1]
 
-        print("no path to any frontier found")
-        assert error
+        raise Exception("no path to any frontier found")
 
     def __compute_wave_grid(self, obstacle_mask, robot_x_grid, robot_y_grid):
         # Init "wave" grid to zeros

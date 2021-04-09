@@ -9,6 +9,8 @@ import NPFunctions as npf
 LOOK_AHEAD_DISTANCE = 2
 GOAL_THRESHOLD = 1
 MAX_SPEED = 1
+WARNING_SPEED = .5
+
 
 class RobotDrive:
 
@@ -18,6 +20,7 @@ class RobotDrive:
     def __init__(self, robot):
         self.__robot = robot
         self.__has_navigation = False
+        self.__in_warning = False
 
     def add_wcs_coordinate(self, wcs_x, wcs_y, wcs_z=0):
         """
@@ -34,7 +37,17 @@ class RobotDrive:
             self._path_matrix = np.array([wcs_x, wcs_y,wcs_z]).reshape(1,3)
         
         self.__has_navigation = True
-        
+    
+    def warning(self, in_warning):
+        self.__in_warning = in_warning
+
+    def __get_max_speed(self):
+        speed = WARNING_SPEED if self.__in_warning else MAX_SPEED
+        if(self.__in_warning):
+            print("__get_max_speed:",speed)
+        return speed
+
+
     def set_WCS_path(self, path_matrix):
         """
         Sets a series of coordinates along a path for the robot to navigate through
@@ -95,13 +108,13 @@ class RobotDrive:
         # Find furthest valid point
         goal_point_index = self._find_goal_point_index()
 
-        print("distance to nav point "+str(goal_point_index)+":",self.__robot_to_path_distances[goal_point_index])
+        #print("distance to nav point "+str(goal_point_index)+":",self.__robot_to_path_distances[goal_point_index])
 
         orientation_error = self.get_orientation_error(self._path_matrix[goal_point_index])
 
         # adjust robot speed based on orientation error, this makes
         # it slow down on tight curves or when far from the path
-        speed = MAX_SPEED - abs(orientation_error) * MAX_SPEED
+        speed = self.__get_max_speed() - abs(orientation_error) * MAX_SPEED
 
         # Update robot speed and turn rate
         self.__robot.setMotion(max(speed, 0), orientation_error * 0.9)
