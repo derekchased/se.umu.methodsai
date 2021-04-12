@@ -56,6 +56,7 @@ class RobotController:
 
         try:
             self.main_loop()
+            self.end_program()
         except KeyboardInterrupt:
             self.__robot.setMotion(0, 0)
 
@@ -109,8 +110,10 @@ class RobotController:
             # Wait before next cycle
             time.sleep(.1)
 
-        # If broken out of the loop then end the program
+    def end_program(self):
         self.__show_map.close()
+        self.__robot.setMotion(0.0,0.0)
+        print("Map has been discovered. End Mapmaker program!")
 
     def __do_take_scan(self):
         #print("Taking scan")
@@ -138,7 +141,11 @@ class RobotController:
             self.__show_map.set_frontiers(frontiers)
 
             # Get new path from the path planner
-            path, frontier_x, frontier_y = self.__path_planner.get_path_to_frontier(frontiers)
+            try:
+                path, frontier_x, frontier_y = self.__path_planner.get_path_to_frontier(frontiers)
+            except:
+                self.__loop_running = False
+                return
             
             path_grid = np.array(path)
 
@@ -160,7 +167,9 @@ class RobotController:
 
         else:
             ## TODO what to do when no frontier nodes are returned
-            raise Exception("no frontier nodes found")
+            #raise Exception("no frontier nodes found")
+            self.__loop_running = False
+
 
 if __name__ == "__main__":
     arguments = sys.argv
