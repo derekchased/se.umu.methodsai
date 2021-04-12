@@ -42,7 +42,8 @@ class WavefrontPlanner:
             if path is not None:
                 return path, frontier[0], frontier[1]
 
-        raise Exception("no path to any frontier found")
+
+        raise Exception("no path to any frontier found. Fronteir points remaining:\n",sorted_frontiers)
 
     def __compute_wave_grid(self, obstacle_mask, robot_x_grid, robot_y_grid):
         # Init "wave" grid to zeros

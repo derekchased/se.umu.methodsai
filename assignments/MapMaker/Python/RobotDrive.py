@@ -42,11 +42,7 @@ class RobotDrive:
         self.__in_warning = in_warning
 
     def __get_max_speed(self):
-        speed = WARNING_SPEED if self.__in_warning else MAX_SPEED
-        if(self.__in_warning):
-            print("__get_max_speed:",speed)
-        return speed
-
+        return WARNING_SPEED if self.__in_warning else MAX_SPEED
 
     def set_WCS_path(self, path_matrix):
         """
@@ -114,8 +110,9 @@ class RobotDrive:
 
         # adjust robot speed based on orientation error, this makes
         # it slow down on tight curves or when far from the path
-        speed = self.__get_max_speed() - abs(orientation_error) * MAX_SPEED
+        speed = self.__get_max_speed() - abs(orientation_error) * self.__get_max_speed()
 
+        print("speed",speed)
         # Update robot speed and turn rate
         self.__robot.setMotion(max(speed, 0), orientation_error * 0.9)
 

@@ -43,6 +43,9 @@ class RobotController:
         self.__take_a_scan = False
         self.__determine_frontiers = False
         self.__in_reactive_state = False
+        self.__in_warning = False;
+        self.__in_danger = False
+        self.__in_reactive = False
 
     def main(self):
 
@@ -76,15 +79,29 @@ class RobotController:
 
             # If no navigation point, determine new frontier nodes
             if not self.__robot_drive.has_navigation_point():
+                print("if not self.__robot_drive.has_navigation_point():")
+                print("__in_danger, __in_warning",self.__in_danger, self.__in_warning)
                 self.__determine_frontiers = True
                 self.__robot.setMotion(0.0, 0.0)
 
-            in_danger, in_warning = self.__obstacle_avoider.in_danger()
-            
-            self.__robot_drive.warning(in_warning)
+            # Check distance to obstacle and set flags
+            self.__in_danger, self.__in_warning = self.__obstacle_avoider.in_danger()
 
-            if in_danger:
-                self.reactive_loop()
+            # If "too" close to obstacle, slow max speed
+            self.__robot_drive.warning(self.__in_warning)
+
+        
+            # If in reactive mode but no longer in danger, break out of reactive mode
+            if not self.__in_danger and self.__in_reactive:
+                print("exit reactive mode")
+                self.__in_reactive = False
+
+            # If in danger, but not in reactive mode, start reactive mode            
+            if self.__in_danger and not self.__in_reactive:
+                print("enter reactive mode")
+                self.__in_reactive = True
+                self.__determine_frontiers = True
+                self.__robot.setMotion(0.0,0.0)
 
             # Keep track of total cycles
             self.__cycles += 1
@@ -94,48 +111,6 @@ class RobotController:
 
         # If broken out of the loop then end the program
         self.__show_map.close()
-
-    def reactive_loop(self):
-        print("R: start reactive_loop")
-
-        # Stop motion to avoid potential collision
-        self.__robot.setMotion(0.0, 0.0)
-        
-        # Find new frontier
-        self.__do_determine_frontiers()
-        
-        # Enter reactive mode, essentially disabling further obstacle detection, assume
-        # the robot can get out of this dangerous situation. End the loop and return when
-        # robot is no longer in danger
-        while self.__obstacle_avoider.in_danger():
-            
-            print("R: has_navigation_point()", self.__robot_drive.has_navigation_point())
-            if self.__robot_drive.has_navigation_point():
-
-                self.__robot_drive.take_step()
-
-            else:
-
-                # Robot was given a point to reach but could not.
-                # if you scan for a new frontier from here, this
-                # could start an infinite loop of nothingness
-                raise Exception("Reactive loop error")
-
-            
-            self.__cycles += 1
-
-            if self.__cycles % self.__SCAN_FREQUENCY == 0:
-
-                self.__take_a_scan = True
-            
-            time.sleep(.1)
-
-
-        self.__robot.setMotion(0.0, 0.0)
-        self.__take_a_scan = True
-        self.__determine_frontiers = True
-
-        print("R: end reactive_loop")
 
     def __do_take_scan(self):
         #print("Taking scan")

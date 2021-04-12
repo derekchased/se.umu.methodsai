@@ -28,11 +28,10 @@ class ObstacleAvoider:
 
         in_danger_range = np.any(beam_distances_wcs <= self.__danger_threshold)
 
-        if in_danger_range or in_warning_range:
-            print("in_warning_range:",in_warning_range,"in_danger_range:",in_danger_range, "distance to obstacles:", beam_distances_wcs[beam_distances_wcs<=self.__warning_threshold])
-
-        #print("\nin_danger_range",in_danger_range, beam_distances_wcs[np.where(beam_distances_wcs <= self.__threshold)])
-        #print(np.sort(beam_distances_wcs[beam_distances_wcs < 2]))
+        if(in_warning_range):
+            print("in_warning_range")
+        elif(in_danger_range):
+            print("in_danger_range")
 
         return in_danger_range, in_warning_range
 
@@ -43,24 +42,3 @@ class ObstacleAvoider:
         """
 
         # Move in such a way that the in_danger is not firing anymore.
-
-        
-
-
-    def distance_2d(self, x_point, y_point, x, y):
-        """
-        Returns the distance between two points defined by (x_point, y_point) and (x, y).
-        """
-        return np.hypot(x - x_point, y - y_point)
-
-    def norm_angle(self, angle):
-        """
-        Wraps an angle in radians to a value between -pi and pi.
-        """
-        return (angle + np.pi) % (2 * np.pi) - np.pi
-
-    def angle_2d(self, x_point, y_point, x, y):
-        """
-        Returns the angle of the vector from (x_point, y_point) to (x, y)
-        """
-        return np.arctan2(y - y_point, x - x_point)
