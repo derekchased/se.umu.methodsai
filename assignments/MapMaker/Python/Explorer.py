@@ -34,8 +34,6 @@ class Explorer:
         Algorithm based on: https://arxiv.org/ftp/arxiv/papers/1806/1806.03581.pdf
         """
 
-        print("Determining frontiers..")
-
         # Get robot XY position
         position_wcs = self.__robot.getPosition()
         heading = self.__robot.getHeading()

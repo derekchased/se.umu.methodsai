@@ -90,7 +90,6 @@ class RobotDrive:
     # Main method to determine and update robot's velocity and heading
     def take_step(self):
         if not self.__has_navigation:
-            print("no navigation point")
             return
                 
         self.__robot_position = self.__robot.getPosition()
@@ -112,7 +111,6 @@ class RobotDrive:
         # it slow down on tight curves or when far from the path
         speed = self.__get_max_speed() - abs(orientation_error) * self.__get_max_speed()
 
-        print("speed",speed)
         # Update robot speed and turn rate
         self.__robot.setMotion(max(speed, 0), orientation_error * 0.9)
 

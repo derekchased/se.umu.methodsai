@@ -80,8 +80,6 @@ class RobotController:
 
             # If no navigation point, determine new frontier nodes
             if not self.__robot_drive.has_navigation_point():
-                print("if not self.__robot_drive.has_navigation_point():")
-                print("__in_danger, __in_warning",self.__in_danger, self.__in_warning)
                 self.__determine_frontiers = True
                 self.__robot.setMotion(0.0, 0.0)
 
@@ -94,12 +92,10 @@ class RobotController:
         
             # If in reactive mode but no longer in danger, break out of reactive mode
             if not self.__in_danger and self.__in_reactive:
-                print("exit reactive mode")
                 self.__in_reactive = False
 
             # If in danger, but not in reactive mode, start reactive mode            
             if self.__in_danger and not self.__in_reactive:
-                print("enter reactive mode")
                 self.__in_reactive = True
                 self.__determine_frontiers = True
                 self.__robot.setMotion(0.0,0.0)
@@ -116,7 +112,6 @@ class RobotController:
         print("Map has been discovered. End Mapmaker program!")
 
     def __do_take_scan(self):
-        #print("Taking scan")
         
         # Get robot position
         position_wcs = self.__robot.getPosition()
@@ -148,8 +143,6 @@ class RobotController:
                 return
             
             path_grid = np.array(path)
-
-            print("next frontier:", frontier_x, frontier_y, "len(path_grid):",len(path_grid))
 
             # Convert path (grid) to WCS
             path_x_wcs, path_y_wcs = self.__local_map.grid_to_wcs(path_grid[:, 0], path_grid[:, 1])
@@ -198,8 +191,4 @@ if __name__ == "__main__":
 
     robotController = RobotController(x_min, y_min, x_max, y_max, show_gui, url)
 
-    print("Starting RobotController")
-
     robotController.main()
-
-    print("Done")
